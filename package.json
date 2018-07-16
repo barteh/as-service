@@ -1,6 +1,6 @@
 {
   "name": "@barteh/btservice",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "observable data service based on rxjs using axios for conunicate with server via http (XHR). ",
   "main": "index.js",
   "scripts": {
@@ -15,7 +15,9 @@
     "babel-preset-env": "^1.7.0"
   },
   "dependencies": {
-    "rxjs": "^5.5.10"
+    "axios": "^0.18.0",
+    "rxjs": "^5.5.10",
+    "localforage": "^1.7.1"
   },
   "repository": {
     "type": "git",

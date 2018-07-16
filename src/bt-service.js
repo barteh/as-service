@@ -1,6 +1,6 @@
 import Rx from 'rxjs';
 
-
+var btoa=btoa || function (str) {return new Buffer(str).toString('base64');};
 export class BtService {
 
     constructor(loader, mapper, autoload) {
@@ -214,10 +214,12 @@ export class BtService {
                 let ret = this._mapper
                     ? this._mapper(r)
                     : r;
+
+                    res(ret);
                 subfor
                     .sub
                     .next(ret);
-
+                    
                 this
                     ._sub
                     .next(ret);

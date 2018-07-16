@@ -1,5 +1,5 @@
 ﻿import axios from "axios";
-import hashcode from "bt-common/hashcode";
+import hashcode from "./hashcode";
 
 import localForage from "localforage";
 
