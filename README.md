@@ -4,16 +4,18 @@
 
 ### install:
 
-`npm i barteh/btservice --save`
+```js
+npm i barteh/btservice --save
+```
 
 ### usage:
 ####  import library
-`
+```js
 import {BtService,BtServer} from "@barteh/btservice"
-`
+```
 
 #### 1-  primitive type (number  | string | Array) as service
-```
+```js
 var srv1=new BtService(5); // number as service
 srv1.Observable()
 .subscribe(a=>console.log("ser1 data via observable is:",a));
@@ -23,7 +25,7 @@ srv1.load().then(a=>console.log("ser1 data via promis:",a));
 
 
 #### 2- pure object  as service
-```
+```js
 var srv2=new BtService({x:9}); // number as service
 
 srv2.Observable()
@@ -33,7 +35,7 @@ srv2.load().then(a=>console.log("ser2 data via promis:",a));
 ```
 
 #### 3- function as service (parametric observable)
-```
+```js
 var srv3=new BtService(param=>param*3); // function as service
 srv3.Observable(2) //parametric observe
 .subscribe(a=>console.log("ser3 data via observable is:",a));
@@ -43,8 +45,7 @@ srv3.load(2).then(a=>console.log("ser3 data via promis:",a));
 ```
 
 #### 4- Promise as service 
-```
-
+```js
 var ser4=new BtService(param=>new Promise((res,rej)=>res(`im promise with parameter: ${param}`)));
 
 ser4.Observable("myparam")
@@ -57,7 +58,7 @@ ser4.load("myparam");
  can use Btserver as imput of Btservice
 if  http://myserver/contacts/getcontact.ctrl http REST service is exist
 
-```
+```js
 
 var server=(x,y)=>new BtServer.controller("contacts","getcontact",{name:x,lname:y});
 
@@ -86,9 +87,9 @@ srv5.Observable("Ahad","Rafat")
 ## usig Es5
 for using this service in ES5 projet need to build and get it from dist folder
  ### Build
- `npm run build'
+ `npm run build`
 
- ```
+ ```js
  var BtService=require("barteh/btservice/dist");
  ```
 
