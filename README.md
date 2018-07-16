@@ -90,7 +90,12 @@ for using this service in ES5 projet need to build and get it from dist folder
  `npm run build`
 
  ```js
- var BtService=require("barteh/btservice/dist");
+ var {BtService} =require("@barteh/btservice/dist/bt-service");
+
+var t=new BtService(8);
+
+t.Observable()
+.subscribe(a=>console.log(a))
  ```
 
 
