@@ -1,0 +1,36 @@
+{
+  "name": "@barteh/btservice",
+  "version": "1.0.1",
+  "description": "observable data service based on rxjs using axios for conunicate with server via http (XHR). ",
+  "main": "index.js",
+  "scripts": {
+    "test": " npm run build && node ./dist/test",
+    "build": "babel src -d dist",
+    "up": "npm publish --access public --scope=barteh"
+  },
+  "devDependencies": {
+    "babel": "^6.23.0",
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-preset-env": "^1.7.0"
+  },
+  "dependencies": {
+    "rxjs": "^5.5.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/barteh/btservice.git"
+  },
+  "keywords": [
+    "service",
+    "injectable-service",
+    "rx-in-react",
+    "axios"
+  ],
+  "author": "Ahad Rafat Talebi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/barteh/btservice/issues"
+  },
+  "homepage": "https://github.com/barteh/btservice#readme"
+}
