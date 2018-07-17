@@ -26,7 +26,7 @@ srv1.load().then(a=>console.log("ser1 data via promis:",a));
 
 #### 2- pure object  as service
 ```js
-var srv2=new BtService({x:9}); // number as service
+var srv2=new BtService({x:9}); // object as service
 
 srv2.Observable()
 .subscribe(a=>console.log("ser2 data via observable is:",a));
