@@ -74,9 +74,6 @@ srv5.Observable("Ahad","Rafat")
 > ser1 data via observable is: 5
 > ser2 data via observable is: { x: 9 }
 > ser3 data via observable is: 6
-> ser1 data via promis: 5
-> ser2 data via promis: { x: 9 }
-> ser3 data via promis: 6
 > srv4:  im promise with parameter: myparam
 
 ```
