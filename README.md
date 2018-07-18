@@ -5,7 +5,7 @@
 ### install:
 
 ```js
-npm i barteh/btservice --save
+npm i @barteh/btservice --save
 ```
 
 ### usage:
