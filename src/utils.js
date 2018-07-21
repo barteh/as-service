@@ -1,4 +1,4 @@
-export default function(inobjin){ 
+export function hashcode(inobjin){ 
 	let inobj=JSON.stringify(inobjin);
 	//console.log(88888,inobj)
 	//return;
@@ -17,3 +17,13 @@ export default function(inobjin){
 	
 	return  hash.toString();
 }
+
+export  function objecttoformdata(obj) {
+    let str = "";
+    for (let k in obj) {
+      str += k + "=" + obj[k]+"&";
+    }
+    str = str.slice(0, str.length - 1);
+    return str
+  }
+  

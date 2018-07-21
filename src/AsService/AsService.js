@@ -1,7 +1,9 @@
+
+
 import Rx from 'rxjs';
 
 var btoa=btoa || function (str) {return new Buffer(str).toString('base64');};
-export class BtService {
+export default class AsService {
 
     constructor(loader, mapper, autoload) {
         if (!loader) {
@@ -214,12 +216,10 @@ export class BtService {
                 let ret = this._mapper
                     ? this._mapper(r)
                     : r;
-
-                    res(ret);
                 subfor
                     .sub
                     .next(ret);
-                    
+
                 this
                     ._sub
                     .next(ret);

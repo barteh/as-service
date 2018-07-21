@@ -1,11 +1,11 @@
 ﻿import axios from "axios";
-import hashcode from "./hashcode";
+import {hashcode,objectToFormData} from "../utils";
 
 import localForage from "localforage";
 
-import objectToFormData from './objecttoformdata';
 
-export class BtServer {
+
+export  class server {
   static hookLoginRequire = () => {};
   static hook403 = () => {};
 

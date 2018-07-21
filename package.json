@@ -1,23 +1,24 @@
 {
-  "name": "@barteh/btservice",
+  "name": "@barteh/as-service",
   "version": "1.0.231",
   "description": "observable data service based on rxjs using axios for conunicate with server via http (XHR). ",
   "main": "index.js",
   "scripts": {
-    "test": " npm run build && node ./dist/test",
-    "build": "babel src -d dist",
+    "test": " npm run build && node ./lib/test",
+    "build": "babel src -d ./lib && babel index.d.ts -o index.js ",
     "up": "npm publish --access public --scope=barteh"
   },
   "devDependencies": {
-    "babel": "^6.23.0",
-    "babel-cli": "^6.26.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-preset-env": "^1.7.0"
+    "@babel/cli": "^7.0.0-beta.54",
+    "@babel/core": "^7.0.0-beta.54",
+    "@babel/preset-env": "^7.0.0-beta.54",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.54"
   },
   "dependencies": {
+    
     "axios": "^0.18.0",
-    "rxjs": "^5.5.10",
-    "localforage": "^1.7.1"
+    "localforage": "^1.7.1",
+    "rxjs": "^5.5.10"
   },
   "repository": {
     "type": "git",
