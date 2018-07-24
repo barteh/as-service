@@ -4,7 +4,7 @@
 
 ### install:
 
-```js
+```
 npm i @barteh/as-service --save
 ```
 
@@ -61,8 +61,9 @@ ser4.load("myparam");
 if  http://myserver/contacts/getcontact.ctrl http REST service is exist
 
 ```js
+import {AsService,Server} from "@barteh/as-service"
 
-var controller1=(x,y)=>Server BtServer.controller("contacts","getcontact",{name:x,lname:y});
+var controller1=(x,y)=>Server Server.controller("contacts","getcontact",{name:x,lname:y});
 
 var srv5=new AsService(controller1);
 

@@ -195,8 +195,9 @@ export default class AsService {
                     subfor.state = "idle";
 
                     try {
-                        rej(e);
-                    } catch (e) {}
+                        res(ret);
+                        
+                    } catch (e) {rej(e);}
 
                     // this     ._subs[tmp].sub     .error(e);
                     subfor

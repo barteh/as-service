@@ -5,7 +5,7 @@ import localForage from "localforage";
 
 
 
-export  class server {
+export default class Server {
   static hookLoginRequire = () => {};
   static hook403 = () => {};
 
@@ -14,24 +14,24 @@ export  class server {
 
   static requestCount = 0;
   static beforSend() {
-    BtServer.requestCount++;
-    BtServer.start(BtServer.requestCount);
+    Server.requestCount++;
+    Server.start(Server.requestCount);
   }
   static afterRecieve() {
-    BtServer.requestCount--;
-    if (BtServer.requestCount < 0) 
-      BtServer.requestCount = 0;
-    BtServer.end(BtServer.requestCount);
+    Server.requestCount--;
+    if (Server.requestCount < 0) 
+      Server.requestCount = 0;
+    Server.end(Server.requestCount);
   }
 
   static checkuser(h) {
-    BtServer.hookLoginRequire(h);
+    Server.hookLoginRequire(h);
   }
 
   static errorHooks(e) {
     switch (e) {
       case 403:
-        BtServer.hook403();
+        Server.hook403();
         break;
       default:
     }
@@ -62,15 +62,15 @@ export  class server {
   static timeOut = 5000;
   static axiosInstance = null;
   static getAxios() {
-    if (!BtServer.axiosInstance) 
-      BtServer.axiosInstance = axios.create({
+    if (!Server.axiosInstance) 
+      Server.axiosInstance = axios.create({
         onDownloadProgress: e => {}
       });
-    return BtServer.axiosInstance;
+    return Server.axiosInstance;
   }
   static controller(cont, meth, params, options) {
     options = options || { catch: false,
-      timeout: BtServer.timeOut,
+      timeout: Server.timeOut,
       method: 'GET'
     };
     options.method = options.method || "get";
@@ -80,7 +80,7 @@ export  class server {
 
     let done = false;
 
-    let timeout = options.timeOut || BtServer.timeOut;
+    let timeout = options.timeOut || Server.timeOut;
     let cache = options.cache || false;
 
     let hash = "";
@@ -107,7 +107,7 @@ export  class server {
             return;
           }
 
-          BtServer.beforSend();
+          Server.beforSend();
 
           const pars = options.method === "get"
             ? params
@@ -132,11 +132,11 @@ export  class server {
             //:{}}
           }).then(d => {
 
-            BtServer.afterRecieve();
+            Server.afterRecieve();
 
             done = true;
 
-            BtServer.checkuser(d.data.header.userState);
+            Server.checkuser(d.data.header.userState);
 
             if (d.header) {
               if (d.header.result !== 0) 
@@ -149,12 +149,12 @@ export  class server {
           }).catch(d => {
 
             console.log(66, d)
-            BtServer.afterRecieve();
+            Server.afterRecieve();
             done = true;
-            BtServer.errorHooks(d.request.status);
+            Server.errorHooks(d.request.status);
             rej(d.request.status);
 
-            //  BtServer.errorHandler(options, d.request.status);
+            //  Server.errorHandler(options, d.request.status);
           });
         });
     });
@@ -162,12 +162,12 @@ export  class server {
 
   static dvm(name, params, options) {
     options = options || { catch: false,
-      timeout: BtServer.timeOut
+      timeout: Server.timeOut
     };
 
     let done = false;
 
-    let timeout = options.timeOut || BtServer.timeOut;
+    let timeout = options.timeOut || Server.timeOut;
     let cache = options.cache || false;
 
     let hash = "";
@@ -191,14 +191,14 @@ export  class server {
             return;
           }
 
-          BtServer.beforSend();
+          Server.beforSend();
           axios({method: "get", url: `${name}.dvm`, params: params, timeout: timeout}).then(d => {
 
-            BtServer.afterRecieve();
+            Server.afterRecieve();
             localForage.setItem(hash, d.data);
             done = true;
 
-            BtServer.checkuser(d.data.header.userState);
+            Server.checkuser(d.data.header.userState);
 
             if (d.header) {
               if (d.header.result !== 0) 
@@ -208,13 +208,13 @@ export  class server {
               res(d.data);
             }
           ).catch(d => {
-            BtServer.afterRecieve();
+            Server.afterRecieve();
             done = true;
-            BtServer.errorHooks(d.request.status);
+            Server.errorHooks(d.request.status);
 
             rej(d.request.status);
 
-            //  BtServer.errorHandler(options, d.request.status);
+            //  Server.errorHandler(options, d.request.status);
           });
         });
     });
