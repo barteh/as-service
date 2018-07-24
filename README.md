@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/barteh/as-service.svg?branch=master)](https://travis-ci.org/barteh/as-service)
+
 # AsService
 ---
 ## a parametric, observable and  injectable service based on rxjs as a javascript library using axios for connect to http server (XHR) and localforge for cache in indexedDB
