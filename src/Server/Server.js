@@ -64,7 +64,7 @@ export default class Server {
   static getAxios() {
     if (!Server.axiosInstance) 
       Server.axiosInstance = axios.create({
-        onDownloadProgress: e => {}
+        onDownloadProgress: (/*e*/) => {}
       });
     return Server.axiosInstance;
   }
@@ -78,7 +78,7 @@ export default class Server {
       .method
       .toLowerCase()
 
-    let done = false;
+    
 
     let timeout = options.timeOut || Server.timeOut;
     let cache = options.cache || false;
@@ -101,7 +101,7 @@ export default class Server {
         .getItem(hash)
         .then(a => {
 
-          if (options.cache && a) {
+          if (cache && a) {
             res(a);
 
             return;
@@ -134,7 +134,7 @@ export default class Server {
 
             Server.afterRecieve();
 
-            done = true;
+          
 
             Server.checkuser(d.data.header.userState);
 
@@ -150,7 +150,7 @@ export default class Server {
 
             console.log(66, d)
             Server.afterRecieve();
-            done = true;
+           
             Server.errorHooks(d.request.status);
             rej(d.request.status);
 
@@ -165,7 +165,7 @@ export default class Server {
       timeout: Server.timeOut
     };
 
-    let done = false;
+    
 
     let timeout = options.timeOut || Server.timeOut;
     let cache = options.cache || false;
@@ -185,7 +185,7 @@ export default class Server {
       localForage
         .getItem(hash)
         .then(a => {
-          if (options.cache && a) {
+          if (cache && a) {
             res(a);
 
             return;
@@ -196,7 +196,7 @@ export default class Server {
 
             Server.afterRecieve();
             localForage.setItem(hash, d.data);
-            done = true;
+           
 
             Server.checkuser(d.data.header.userState);
 
@@ -209,7 +209,7 @@ export default class Server {
             }
           ).catch(d => {
             Server.afterRecieve();
-            done = true;
+           
             Server.errorHooks(d.request.status);
 
             rej(d.request.status);

@@ -155,11 +155,11 @@ export default class AsService {
                         : b;
                     subfor
                         .sub
-                        .next(b);
+                        .next(ret);
 
                     this
                         ._sub
-                        .next(b);
+                        .next(ret);
 
                     this._isLoading = false;
                     this._loaded = true;

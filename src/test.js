@@ -30,7 +30,7 @@ srv3.load(2).then(a=>console.log("ser3 data via promis:",a));
 
 //4- Promise as service
 
-var ser4=new AsService(param=>new Promise((res,rej)=>res(`im promise with parameter: ${param}`)));
+var ser4=new AsService(param=>new Promise((res/*,rej*/)=>res(`im promise with parameter: ${param}`)));
 
 ser4.Observable("myparam")
 .subscribe(a=>console.log("srv4: ",a));
