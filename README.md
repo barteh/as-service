@@ -1,30 +1,35 @@
 # AsService
----
-## a parametric, observable and  injectable service based on rxjs as a javascript library using axios for connect to http server (XHR) and localforge for cache in indexedDB
 
-### install:
+---
+
+## A parametric, observable and  injectable service based on rxjs as a javascript library using axios for connect to http server (XHR) and localforge for cache in indexedDB
+
+### Install
 
 ```js
 npm i @barteh/as-service --save
 ```
 
-### usage:
-####  import library
+### Usage
+
+#### Import library
+
 ```js
-import { AsService, Server } from "@barteh/as-service";
+import { AsService,Server} from "@barteh/as-service";
 ```
 
 #### 1-  primitive type (number  | string | Array) as service
+
 ```js
 var srv1 = new AsService(5); // number as service
 srv1.Observable()
 .subscribe(a => console.log("ser1 data via observable is:", a));
 
-srv1.load().then(a=>console.log("ser1 data via promis:", a));
+srv1.load().then(a => console.log("ser1 data via promis:", a));
 ```
 
+#### 2- Pure object as service
 
-#### 2- pure object as service
 ```js
 var srv2 = new AsService({ x : 9 }); // object as service
 
@@ -34,7 +39,8 @@ srv2.Observable()
 srv2.load().then(a => console.log("ser2 data via promis:", a));
 ```
 
-#### 3- function as service (parametric observable)
+#### 3- Function as service (parametric observable)
+
 ```js
 var srv3 = new AsService(param => param * 3); // function as service
 srv3.Observable(2) //parametric observe
@@ -44,7 +50,8 @@ srv3.Observable(2) //parametric observe
 srv3.load(2).then(a => console.log("ser3 data via promis:", a));
 ```
 
-#### 4- Promise as service 
+#### 4- Promise as service
+
 ```js
 var ser4 = new AsService(param => new Promise((res, rej) => res(`im promise with parameter: ${param}`)));
 
@@ -53,12 +60,14 @@ ser4.Observable("myparam")
 
 ser4.load("myparam");
 ```
-#### 5- XHR as Service
- >using built in advanced methods name [ Server ] wraps axios for retrive data from http server and localforge for cache data.
- following sample uses class [ Server ]  as input of AsService. you can use your own xhr library insteed of this.
 
- 
-if  http://myserver/contacts/getcontact.ctrl http REST service is exist
+#### 5- XHR as Service
+
+> Using built in advanced methods name [ Server ] wraps axios for retrive data from http server and localforge for cache data.
+
+Following sample uses class [ Server ]  as input of AsService. you can use your own xhr library instead of this.
+
+If  http://myserver/contacts/getcontact.ctrl http REST service exists
 
 ```js
 
@@ -69,10 +78,10 @@ var srv5 = new AsService(controller1);
 srv5.Observable("Ahad", "Rafat")
 .subscribe(a => console.log("srv5:", a));
 ```
-#### output:
-```
 
+#### Output
 
+```cmd
 > ser1 data via observable is: 5
 > ser2 data via observable is: { x: 9 }
 > ser3 data via observable is: 6
@@ -80,24 +89,25 @@ srv5.Observable("Ahad", "Rafat")
 
 ```
 
-### Test:
- `npm  test`
+### Test
 
-## usig Both for web and browsers
+ `npm test`
+
+## Using Both for web and browsers
 
 ### Build
+
  `npm run build`
 
+### Use in ES5
 
-### use in ES5
  ```js
- var {AsService} = require("@barteh/as-service");
+var { AsService } = require("@barteh/as-service");
 
 var t = new AsService(8);
 
 t.Observable()
 .subscribe(a => console.log(a))
  ```
-
 
 License: MIT
