@@ -1,16 +1,16 @@
 ﻿import axios from "axios";
-import {hashcode,objectToFormData} from "../utils";
+import { hashcode, objectToFormData } from "../utils";
 
 import localForage from "localforage";
 
 
 
-export  class server {
-  static hookLoginRequire = () => {};
-  static hook403 = () => {};
+export class server {
+  static hookLoginRequire = () => { };
+  static hook403 = () => { };
 
-  static start() {}
-  static end() {}
+  static start() { }
+  static end() { }
 
   static requestCount = 0;
   static beforSend() {
@@ -19,7 +19,7 @@ export  class server {
   }
   static afterRecieve() {
     BtServer.requestCount--;
-    if (BtServer.requestCount < 0) 
+    if (BtServer.requestCount < 0)
       BtServer.requestCount = 0;
     BtServer.end(BtServer.requestCount);
   }
@@ -38,22 +38,22 @@ export  class server {
   }
   static errorHandler(options, status) {
     if (500 <= status && status < 600) {
-      if (options.e500 && typeof options.e500 === "function") 
+      if (options.e500 && typeof options.e500 === "function")
         options.e500(status);
-      }
+    }
     else if (400 <= status && status < 500) {
-      if (options.e500 && typeof options.e500 === "function") 
+      if (options.e500 && typeof options.e500 === "function")
         options.e400(status);
-      }
+    }
     else if (300 <= status && status < 400) {
-      if (options.e500 && typeof options.e500 === "function") 
+      if (options.e500 && typeof options.e500 === "function")
         options.e300(status);
-      }
+    }
     else if (100 <= status && status < 200) {
-      if (options.e500 && typeof options.e500 === "function") 
+      if (options.e500 && typeof options.e500 === "function")
         options.e400(status);
-      }
-    
+    }
+
     if (options.error && typeof options.error === "function") {
       options.error(status);
     }
@@ -62,14 +62,15 @@ export  class server {
   static timeOut = 5000;
   static axiosInstance = null;
   static getAxios() {
-    if (!BtServer.axiosInstance) 
+    if (!BtServer.axiosInstance)
       BtServer.axiosInstance = axios.create({
-        onDownloadProgress: e => {}
+        onDownloadProgress: e => { }
       });
     return BtServer.axiosInstance;
   }
   static controller(cont, meth, params, options) {
-    options = options || { catch: false,
+    options = options || {
+      catch: false,
       timeout: BtServer.timeOut,
       method: 'GET'
     };
@@ -85,13 +86,13 @@ export  class server {
 
     let hash = "";
 
-    if (process.env.NODE_ENV === "development") 
+    if (process.env.NODE_ENV === "development")
       hash = `${cont}/${meth}.ctrl/${params
         ? JSON.stringify(params)
         : ""}`;
-    else 
-      hash = hashcode({cont, meth, params});
-    
+    else
+      hash = hashcode({ cont, meth, params });
+
     // if(options.cache) hash=hashcode({cont,meth,params});
     // hash=`${cont}/${meth}.ctrl/${params?hashcode(params):""}`;
 
@@ -139,9 +140,9 @@ export  class server {
             BtServer.checkuser(d.data.header.userState);
 
             if (d.header) {
-              if (d.header.result !== 0) 
+              if (d.header.result !== 0)
                 rej(d.data);
-              }
+            }
             else {
               res(d.data);
               localForage.setItem(hash, d.data);
@@ -161,7 +162,8 @@ export  class server {
   }
 
   static dvm(name, params, options) {
-    options = options || { catch: false,
+    options = options || {
+      catch: false,
       timeout: BtServer.timeOut
     };
 
@@ -172,13 +174,13 @@ export  class server {
 
     let hash = "";
 
-    if (process.env.NODE_ENV === "development") 
+    if (process.env.NODE_ENV === "development")
       hash = `${name}${params
         ? JSON.stringify(params)
         : ""}`;
-    else 
-      hash = hashcode({name, params});
-    
+    else
+      hash = hashcode({ name, params });
+
     //   hash = `${name}.dvm/${params ? hashcode(params) : ""}`;
 
     return new Promise((res, rej) => {
@@ -192,7 +194,7 @@ export  class server {
           }
 
           BtServer.beforSend();
-          axios({method: "get", url: `${name}.dvm`, params: params, timeout: timeout}).then(d => {
+          axios({ method: "get", url: `${name}.dvm`, params: params, timeout: timeout }).then(d => {
 
             BtServer.afterRecieve();
             localForage.setItem(hash, d.data);
@@ -201,12 +203,12 @@ export  class server {
             BtServer.checkuser(d.data.header.userState);
 
             if (d.header) {
-              if (d.header.result !== 0) 
+              if (d.header.result !== 0)
                 rej(d.data);
-              }
-            else 
-              res(d.data);
             }
+            else
+              res(d.data);
+          }
           ).catch(d => {
             BtServer.afterRecieve();
             done = true;
