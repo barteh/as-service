@@ -2,21 +2,21 @@
 
 import Rx from 'rxjs';
 
-var btoa=btoa || function (str) {return new Buffer(str).toString('base64');};
+var btoa = btoa || function (str) { return new Buffer(str).toString('base64'); };
 export default class AsService {
 
     constructor(loader, mapper, autoload) {
         if (!loader) {
             console.log("barte error:", "btService", "loader is not set");
         }
-        
-        this._loader = typeof loader==="function"? loader:()=>loader;
+
+        this._loader = typeof loader === "function" ? loader : () => loader;
         this._mapper = mapper;
         this._autoload = autoload;
-        if (autoload === true) 
+        if (autoload === true)
             this._reload();
-        }
-    
+    }
+
     _subs = {};
     _lastParams = null;
     _sub = new Rx.BehaviorSubject();
@@ -60,7 +60,7 @@ export default class AsService {
     get(...params) {
         let subfor = this.getSub(params);
 
-        if (subfor.state === "start") 
+        if (subfor.state === "start")
             return this._reload(...params);
         else {
             let ret = new Promise((res, rej) => {
@@ -83,7 +83,7 @@ export default class AsService {
         }
     }
 
-    publishAll() {}
+    publishAll() { }
     publish(...params) {
         let sub = this.getSub(params);
         sub.next(this.$data);
@@ -149,7 +149,7 @@ export default class AsService {
 
                 let sub = r.subscribe(b => {
 
-                    
+
                     let ret = this._mapper
                         ? this._mapper(b)
                         : b;
@@ -196,8 +196,8 @@ export default class AsService {
 
                     try {
                         res(ret);
-                        
-                    } catch (e) {rej(e);}
+
+                    } catch (e) { rej(e); }
 
                     // this     ._subs[tmp].sub     .error(e);
                     subfor
@@ -213,7 +213,7 @@ export default class AsService {
                 });
 
             } else {
-                
+
                 let ret = this._mapper
                     ? this._mapper(r)
                     : r;
@@ -235,6 +235,6 @@ export default class AsService {
         return ret;
     }
 
-    _getFromPromise() {}
+    _getFromPromise() { }
 
 }
