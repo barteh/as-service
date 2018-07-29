@@ -113,7 +113,7 @@ export default class AsService {
     ready = false;
 
     _reload(...params) {
-
+        
         let subfor = this.getSub(params);
         if (subfor.state === "loading") {
 
@@ -227,6 +227,7 @@ export default class AsService {
 
                 this._isLoading = false;
                 this._loaded = true;
+                subfor.state="idle";
 
             }
 
