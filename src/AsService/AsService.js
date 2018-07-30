@@ -1,20 +1,61 @@
-
-
 import Rx from 'rxjs';
 
-var btoa = btoa || function (str) { return new Buffer(str).toString('base64'); };
+var btoa = btoa || function (str) {
+    return new Buffer(str).toString('base64');
+};
 export default class AsService {
 
     constructor(loader, mapper, autoload) {
         if (!loader) {
             console.log("barte error:", "btService", "loader is not set");
+            return undefined;
         }
 
-        this._loader = typeof loader === "function" ? loader : () => loader;
-        this._mapper = mapper;
-        this._autoload = autoload;
-        if (autoload === true)
+        if (loader.$$isAsService) {
+            this._loader = loader.getLoader();
+            let sourceMapper = loader.getMapper();
+            if (sourceMapper) {
+                if (mapper) {
+
+                    this._mapper = (...params) => mapper(sourceMapper(...params), ...params);
+                } else {
+
+                    this._mapper = (...params) => {
+                        return sourceMapper(...params);
+                    }
+                    console.log(175, sourceMapper, this._mapper);
+                }
+            }
+
+        } else {
+            this._loader = typeof loader === "function"
+                ? loader
+                : () => loader;
+            this._mapper = mapper;
+        }
+
+        this._autoload = autoload
+            ? true
+            : false;
+        if (autoload === true) 
             this._reload();
+        
+        this.$$isAsService = true;
+    }
+
+    map(mapper) {
+        if (!mapper || typeof mapper!= "function") {
+            console.log("AsService Error: mapper function not set")
+            return undefined;
+        }
+        else return new AsService(this,mapper);
+    }
+
+    getMapper() {
+        return this._mapper;
+    }
+    getLoader() {
+        return this._loader;
     }
 
     _subs = {};
@@ -49,9 +90,11 @@ export default class AsService {
             .filter(a => a !== undefined);
 
     }
+
     refresh() {
         return this._reload(this._lastParams);
     }
+
     load(...params) {
 
         return this._reload(...params);
@@ -60,7 +103,7 @@ export default class AsService {
     get(...params) {
         let subfor = this.getSub(params);
 
-        if (subfor.state === "start")
+        if (subfor.state === "start") 
             return this._reload(...params);
         else {
             let ret = new Promise((res, rej) => {
@@ -83,7 +126,7 @@ export default class AsService {
         }
     }
 
-    publishAll() { }
+    publishAll() {}
     publish(...params) {
         let sub = this.getSub(params);
         sub.next(this.$data);
@@ -113,7 +156,7 @@ export default class AsService {
     ready = false;
 
     _reload(...params) {
-        
+
         let subfor = this.getSub(params);
         if (subfor.state === "loading") {
 
@@ -149,9 +192,8 @@ export default class AsService {
 
                 let sub = r.subscribe(b => {
 
-
                     let ret = this._mapper
-                        ? this._mapper(b)
+                        ? this._mapper(b, ...params)
                         : b;
                     subfor
                         .sub
@@ -173,7 +215,7 @@ export default class AsService {
                     subfor.state = "idle";
 
                     let ret = this._mapper
-                        ? this._mapper(d)
+                        ? this._mapper(d, ...params)
                         : d;
 
                     this.$data = ret;
@@ -197,7 +239,9 @@ export default class AsService {
                     try {
                         res(ret);
 
-                    } catch (e) { rej(e); }
+                    } catch (e) {
+                        rej(e);
+                    }
 
                     // this     ._subs[tmp].sub     .error(e);
                     subfor
@@ -215,7 +259,7 @@ export default class AsService {
             } else {
 
                 let ret = this._mapper
-                    ? this._mapper(r)
+                    ? this._mapper(r, ...params)
                     : r;
                 subfor
                     .sub
@@ -227,7 +271,7 @@ export default class AsService {
 
                 this._isLoading = false;
                 this._loaded = true;
-                subfor.state="idle";
+                subfor.state = "idle";
 
             }
 
@@ -236,6 +280,6 @@ export default class AsService {
         return ret;
     }
 
-    _getFromPromise() { }
+    _getFromPromise() {}
 
 }
