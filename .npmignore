@@ -1,4 +1,9 @@
 src
 .git
+.gitignore
 .npmignore
-
+node_modules
+.travis.yml
+.eslintrc
+.eslintignore
+.babelrc
