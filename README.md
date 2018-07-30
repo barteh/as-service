@@ -3,7 +3,7 @@
 # AsService
 
 ---
-## A parametric, observable and injectable service based on rxjs as a javascript library using axios for connect to http server (XHR) and localforge for cache in indexedDB
+## A recursive parametric, observable and injectable service based on rxjs as a javascript library using axios for connect to http server (XHR) and localforge for cache in indexedDB
 
 ### Install
 
@@ -91,11 +91,28 @@ srv5.Observable("Ahad", "Rafat")
 
 ```
 
+#### 6-AsService as AsService (Recursive Service)
+> asn  AsService can use argument of constructor with deferent mapper but same loader. this is usefull to derivate a service from other. it important if you want to decrease number of services complexity and increase reusability of code.
+
+```js
+const ser1=new AsService([5,6,7,8]);
+const ser2=new AsService(ser1,/*mapper*/ a=>a.map(b=>b*2)); //=> [10,12,14,16]
+``` 
+
+#### 7-derive from a Service using  map() operator.
+> you can create new Service derived from another service using map operator. this operator sends both data and parameter to mapper function.
+
+```js
+const ser1=new AsService([5,6,7,8]);
+const ser2=ser1.map(a=>a.filter(b=>b<7)); // ==> [5,6]
+
+```
+
 ### Test
 
  `npm  test`
 
-## Using Both for web and browsers
+## Using Both for web and node js
 
 ### Build
 
