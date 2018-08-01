@@ -3,7 +3,12 @@
 # AsService
 
 ---
-## A recursive parametric, observable and injectable service based on rxjs as a javascript library using axios for connect to http server (XHR) and localforge for cache in indexedDB
+## A chained, cascade, parametric, observable and promise base data service. based on rxjs, using axios as default connector http server (XHR) and localforge for cache in indexedDB.
+
+
+### why use AsService?
+> Rxjs is greate and nice library implements event driven pattern but there are some little vacancy. thus using Rxjs directly for web application for data flow is not easy. you shuld create and manage observables on fly. no parametric observables. no pure reusable way to loading data from source like http and ... .  According to our experiance we crated current library that provides every thing as a parametric observable  service coveres wide range of  needs easily. so we created other tool named withservice base on this for using easily rxjs in react. [@barteh/react-withservice](https://github.com/barteh/react-withservice) .
+
 
 ### Install
 
@@ -100,7 +105,20 @@ const ser2=new AsService(ser1,/*mapper*/ a=>a.map(b=>b*2)); //=> [10,12,14,16]
 ``` 
 
 #### 7-derive from a Service using  map() operator.
-> you can create new Service derived from another service using map operator. this operator sends both data and parameter to mapper function.
+> you can create new Service derived from another service using map operator. this operator sends both data and parameter to mapper function. mapper parameters can be more than loader parameters. 
+```js
+/*map(data,...params)*/
+const ser1=new AsService((x,y)=>x+y);
+const ser2=ser1.map((data,x,y,z)=>data+z);
+
+ser1.load(/*x*/1,/*y*/,2,/*z*/,3)
+.then(a=>console.log(a));
+// output 
+// > 6
+
+
+
+```
 
 ```js
 const ser1=new AsService([5,6,7,8]);

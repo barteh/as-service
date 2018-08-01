@@ -17,14 +17,15 @@ export default class AsService {
             if (sourceMapper) {
                 if (mapper) {
 
-                    this._mapper = (...params) => mapper(sourceMapper(...params), ...params);
+                    this._mapper = (data, ...params) => mapper(sourceMapper(data, ...params), ...params);
                 } else {
 
                     this._mapper = (...params) => {
                         return sourceMapper(...params);
                     }
-                    console.log(175, sourceMapper, this._mapper);
+
                 }
+                console.log(175, sourceMapper, this._mapper);
             }
 
         } else {
@@ -44,13 +45,13 @@ export default class AsService {
     }
 
     map(mapper) {
-        if (!mapper || typeof mapper!= "function") {
+        if (!mapper || typeof mapper !== "function") {
             console.log("AsService Error: mapper function not set")
             return undefined;
+        } else 
+            return new AsService(this, mapper, this._autoload);
         }
-        else return new AsService(this,mapper);
-    }
-
+    
     getMapper() {
         return this._mapper;
     }
@@ -73,6 +74,13 @@ export default class AsService {
         return this
             ._errorSub
             .filter(a => a !== undefined);
+    }
+
+    publishNull(...params) {
+        let subfor = this.getSub(params);
+        subfor
+            .sub
+            .next(null);
     }
 
     ErrorObservable(...params) {
@@ -101,6 +109,7 @@ export default class AsService {
     }
 
     get(...params) {
+        console.log(179, params);
         let subfor = this.getSub(params);
 
         if (subfor.state === "start") 
@@ -156,7 +165,7 @@ export default class AsService {
     ready = false;
 
     _reload(...params) {
-
+        console.log(250, ...params)
         let subfor = this.getSub(params);
         if (subfor.state === "loading") {
 
