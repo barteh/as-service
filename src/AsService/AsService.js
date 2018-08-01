@@ -165,7 +165,7 @@ export default class AsService {
     ready = false;
 
     _reload(...params) {
-        console.log(250, ...params)
+
         let subfor = this.getSub(params);
         if (subfor.state === "loading") {
 
@@ -191,15 +191,20 @@ export default class AsService {
         // }
 
         let ret = new Promise((res, rej) => {
+
             subfor.state = "loading";
 
             let fnret = this._loader(...params);
 
             const r = fnret;
 
-            if (r instanceof Rx.Observable) {
-
-                let sub = r.subscribe(b => {
+            //if (r instanceof Rx.Observable) {
+            if (r._isScalar !== undefined) {
+                if(subfor.sourceObservable!==undefined)
+                subfor
+                    .sourceObservable
+                    .unsubscribe();
+                subfor.sourceObservable = r.subscribe(b => {
 
                     let ret = this._mapper
                         ? this._mapper(b, ...params)
@@ -207,6 +212,7 @@ export default class AsService {
                     subfor
                         .sub
                         .next(ret);
+                    console.log("xxxxxxxxxx", ret);
 
                     this
                         ._sub
@@ -215,7 +221,6 @@ export default class AsService {
                     this._isLoading = false;
                     this._loaded = true;
 
-                    sub.unsubscribe();
                 })
 
             } else if (r instanceof Promise) {
@@ -270,6 +275,7 @@ export default class AsService {
                 let ret = this._mapper
                     ? this._mapper(r, ...params)
                     : r;
+                res(ret);
                 subfor
                     .sub
                     .next(ret);
