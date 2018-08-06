@@ -5,46 +5,51 @@ var btoa = btoa || function (str) {
 };
 export default class AsService {
 
-    constructor(loader, mapper, autoload, paramcount, forceSourceLoad) {
+    constructor(loader, mapper, autoload) {
         if (!loader) {
             console.log("barte error:", "btService", "loader is not set");
-            //return undefined;
+            return undefined;
         }
 
-        if (loader!==undefined && loader.$$isAsService) {
-            this._source = loader;
-            this._paramCount = paramcount;
-            this._forceSourceLoad = forceSourceLoad !== undefined;
-         
+        if (loader.$$isAsService) {
+            this._loader = loader.getLoader();
+            let sourceMapper = loader.getMapper();
+            if (sourceMapper) {
+                if (mapper) {
+
+                    this._mapper = (data, ...params) => mapper(sourceMapper(data, ...params), ...params);
+                } else {
+
+                    this._mapper = (...params) => {
+                        return sourceMapper(...params);
+                    }
+
+                }
+                console.log(175, sourceMapper, this._mapper);
+            }
+
         } else {
-            if (typeof loader === "function") {
-                this._loader = loader;
-                this._paramCount = loader.length;
-            } else {
-                this._loader = () => loader;
-            }
-            if (autoload === true) 
-                this._reload();
-            }
-        
-        this._mapper = mapper;
+            this._loader = typeof loader === "function"
+                ? loader
+                : () => loader;
+            this._mapper = mapper;
+        }
 
         this._autoload = autoload
             ? true
             : false;
+        if (autoload === true) 
+            this._reload();
         
         this.$$isAsService = true;
     }
-    _forceSourceLoad = false;
-    _paramCount = 0;
-    map(mapper, forceLoadSource) {
-        console.log(1177, mapper);
 
+    map(mapper) {
         if (!mapper || typeof mapper !== "function") {
             console.log("AsService Error: mapper function not set")
             return undefined;
         } else 
-            return new AsService(this, mapper, this._autoload, mapper.length - 1, forceLoadSource);
+            return new AsService(this, mapper, this._autoload);
         }
     
     getMapper() {
@@ -55,7 +60,7 @@ export default class AsService {
     }
 
     _subs = {};
-    _lastParams = [];
+    _lastParams = null;
     _sub = new Rx.BehaviorSubject();
     _errorSub = new Rx.BehaviorSubject();
 
@@ -71,19 +76,23 @@ export default class AsService {
             .filter(a => a !== undefined);
     }
 
- 
+    publishNull(...params) {
+        let subfor = this.getSub(params);
+        subfor
+            .sub
+            .next(null);
+    }
 
     ErrorObservable(...params) {
 
-        let subfor = this.getSub(...params)
+        let subfor = this.getSub(params)
         return subfor
             .errorSub
             .filter(a => a !== undefined);
 
     }
     Observable(...params) {
-        let subfor = this.getSub(...params);
-
+        let subfor = this.getSub(params);
         return subfor
             .sub
             .filter(a => a !== undefined);
@@ -91,52 +100,20 @@ export default class AsService {
     }
 
     refresh() {
-        return this.forceLaod(...this._lastParams);
+        return this._reload(this._lastParams);
     }
 
-    forceLoad(...params) {
-        this._lastParams=params;
-        if (this._source) {
-
-            return this
-                ._source
-                .load(...params)
-                .then(a => this._mapper
-                    ? this._mapper(a, ...params)
-                    : a)
-                .catch(e => e);
-
-        } else 
-            return this._reload(...params);
-        }
-    
     load(...params) {
-this._lastParams=params;
-        if (this._source) {
-            if (this._forceSourceLoad) {
-                return this.forceLoad(...params);
-            } else {
 
-                return this
-                    ._source
-                    .get(...params)
-                    .then(a => this._mapper
-                        ? this._mapper(a, ...params)
-                        : a)
-                    .catch(e => e);
-            }
+        return this._reload(...params);
+    }
 
-        } else 
-            return this._reload(...params);
-        }
-    
     get(...params) {
-      
-            
-        let subfor = this.getSub(...params);
+        console.log(179, params);
+        let subfor = this.getSub(params);
 
         if (subfor.state === "start") 
-            return this.load(...params);
+            return this._reload(...params);
         else {
             let ret = new Promise((res, rej) => {
                 let subs = subfor
@@ -160,51 +137,36 @@ this._lastParams=params;
 
     publishAll() {}
     publish(...params) {
-        let sub = this.getSub(...params);
+        let sub = this.getSub(params);
         sub.next(this.$data);
         this
             ._sub
             .next(this.$data);
     }
 
-    getSub(...params) {
+    _isLoading = false;
 
-        const pars = params.slice(0, this._paramCount);
-        let tmp = btoa(encodeURIComponent(pars));
+    getSub(...params) {
+        let tmp = btoa(encodeURIComponent(params));
 
         if (!this._subs[tmp]) {
 
             this._subs[tmp] = {
-                sub: this._source === undefined
-                    ? new Rx.BehaviorSubject()
-                    : this
-                        ._source
-                        .Observable(...params)
-                        .map(a => this._mapper(a, ...pars)),
-                errorSub: this._source === undefined
-                    ? new Rx.BehaviorSubject()
-                    : this
-                        ._source
-                        .ErrorObservable(...params)
-                        .map(a => this._mapper(a, ...pars)),
-                state: this._source === undefined
-                    ? "start"
-                    : "idle"
-            };
+                sub: new Rx.BehaviorSubject(),
+                errorSub: new Rx.BehaviorSubject(),
+                state: "start"
 
+            };
         }
         return this._subs[tmp];
 
     }
 
-    getState(...params){
-        const sub=this.getSub(...params);
-        return sub.state;
-    }
+    ready = false;
 
     _reload(...params) {
 
-        let subfor = this.getSub(...params);
+        let subfor = this.getSub(params);
         if (subfor.state === "loading") {
 
             let ret = new Promise((res, rej) => {
@@ -226,6 +188,7 @@ this._lastParams=params;
             return ret;
         }
 
+        // }
 
         let ret = new Promise((res, rej) => {
 
@@ -235,7 +198,7 @@ this._lastParams=params;
 
             const r = fnret;
 
-           
+            //if (r instanceof Rx.Observable) {
             if (r._isScalar !== undefined) {
                 if (subfor.sourceObservable !== undefined) 
                     subfor.sourceObservable.unsubscribe();
@@ -247,16 +210,20 @@ this._lastParams=params;
                     subfor
                         .sub
                         .next(ret);
+                    console.log("xxxxxxxxxx", ret);
 
                     this
                         ._sub
                         .next(ret);
 
+                    this._isLoading = false;
+                    this._loaded = true;
+
                 })
 
             } else if (r instanceof Promise) {
                 fnret.then(d => {
-                    
+                    this.ready = true;
                     subfor.state = "idle";
 
                     let ret = this._mapper
@@ -275,8 +242,11 @@ this._lastParams=params;
                         ._sub
                         .next(ret);
 
+                    this._isLoading = false;
+                    this._loaded = true;
+
                 }).catch(e => {
-                    subfor.state = "start";
+                    subfor.state = "idle";
 
                     try {
                         res(ret);
@@ -285,7 +255,7 @@ this._lastParams=params;
                         rej(e);
                     }
 
-                    
+                    // this     ._subs[tmp].sub     .error(e);
                     subfor
                         .errorSub
                         .next(e);
@@ -294,7 +264,7 @@ this._lastParams=params;
                         ._errorSub
                         .next(e);
 
-                    
+                    //   this._sub.error(e);
 
                 });
 
@@ -312,6 +282,8 @@ this._lastParams=params;
                     ._sub
                     .next(ret);
 
+                this._isLoading = false;
+                this._loaded = true;
                 subfor.state = "idle";
 
             }
