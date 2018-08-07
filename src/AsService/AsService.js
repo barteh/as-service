@@ -91,7 +91,7 @@ export default class AsService {
     }
 
     refresh() {
-        return this.forceLaod(...this._lastParams);
+        return this.forceLoad(...this._lastParams);
     }
 
     forceLoad(...params) {
