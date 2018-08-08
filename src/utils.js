@@ -18,7 +18,7 @@ export function hashcode(inobjin){
 	return  hash.toString();
 }
 
-export  function objecttoformdata(obj) {
+export  function objectToFormData(obj) {
     let str = "";
     for (let k in obj) {
       str += k + "=" + obj[k]+"&";
