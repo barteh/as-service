@@ -1,14 +1,16 @@
 ﻿import axios from "axios";
-import {hashcode, objectToFormData} from "../utils";
+import { hashcode, objectToFormData } from "../utils";
 
 import localForage from "localforage";
 
-export default class Server {
-    static hookLoginRequire = () => {};
-    static hook403 = () => {};
 
-    static start() {}
-    static end() {}
+
+export default class Server {
+    static hookLoginRequire = () => { };
+    static hook403 = () => { };
+
+    static start() { }
+    static end() { }
 
     static requestCount = 0;
     static beforSend() {
@@ -17,7 +19,7 @@ export default class Server {
     }
     static afterRecieve() {
         Server.requestCount--;
-        if (Server.requestCount < 0) 
+        if (Server.requestCount < 0)
             Server.requestCount = 0;
         Server.end(Server.requestCount);
     }
@@ -36,22 +38,22 @@ export default class Server {
     }
     static errorHandler(options, status) {
         if (500 <= status && status < 600) {
-            if (options.e500 && typeof options.e500 === "function") 
+            if (options.e500 && typeof options.e500 === "function")
                 options.e500(status);
-            }
+        }
         else if (400 <= status && status < 500) {
-            if (options.e500 && typeof options.e500 === "function") 
+            if (options.e500 && typeof options.e500 === "function")
                 options.e400(status);
-            }
+        }
         else if (300 <= status && status < 400) {
-            if (options.e500 && typeof options.e500 === "function") 
+            if (options.e500 && typeof options.e500 === "function")
                 options.e300(status);
-            }
+        }
         else if (100 <= status && status < 200) {
-            if (options.e500 && typeof options.e500 === "function") 
+            if (options.e500 && typeof options.e500 === "function")
                 options.e400(status);
-            }
-        
+        }
+
         if (options.error && typeof options.error === "function") {
             options.error(status);
         }
@@ -60,14 +62,15 @@ export default class Server {
     static timeOut = 5000;
     static axiosInstance = null;
     static getAxios() {
-        if (!Server.axiosInstance) 
+        if (!Server.axiosInstance)
             Server.axiosInstance = axios.create({
-                onDownloadProgress: (/*e*/) => {}
+                onDownloadProgress: (/*e*/) => { }
             });
         return Server.axiosInstance;
     }
     static controller(cont, meth, params, options) {
-        options = options || { catch: false,
+        options = options || {
+            catch: false,
             timeout: Server.timeOut,
             method: 'GET'
         };
@@ -76,18 +79,20 @@ export default class Server {
             .method
             .toLowerCase()
 
+
+
         let timeout = options.timeOut || Server.timeOut;
         let cache = options.cache || false;
 
         let hash = "";
 
-        if (process.env.NODE_ENV === "development") 
+        if (process.env.NODE_ENV === "development")
             hash = `${cont}/${meth}.ctrl/${params
                 ? JSON.stringify(params)
                 : ""}`;
-        else 
-            hash = hashcode({cont, meth, params});
-        
+        else
+            hash = hashcode({ cont, meth, params });
+
         // if(options.cache) hash=hashcode({cont,meth,params});
         // hash=`${cont}/${meth}.ctrl/${params?hashcode(params):""}`;
 
@@ -98,8 +103,9 @@ export default class Server {
                 .then(a => {
 
                     if (cache && a) {
-                       return  res(a);
+                        res(a);
 
+                        return;
                     }
 
                     Server.beforSend();
@@ -110,6 +116,7 @@ export default class Server {
                     const dats = options.method === "post"
                         ? objectToFormData(params)
                         : null;
+
 
                     axios({
                         //  ax({
@@ -128,16 +135,17 @@ export default class Server {
 
                         Server.afterRecieve();
 
+
+
                         Server.checkuser(d.data.header.userState);
 
                         if (d.header) {
-                            if (d.header.result !== 0) 
-                                return rej(d.data);
-                            }
+                            if (d.header.result !== 0)
+                                rej(d.data);
+                        }
                         else {
-
+                            res(d.data);
                             localForage.setItem(hash, d.data);
-                            return res(d.data);
                         }
                     }).catch(d => {
 
@@ -145,7 +153,7 @@ export default class Server {
                         Server.afterRecieve();
 
                         Server.errorHooks(d.request.status);
-                        return rej(d.request.status);
+                        rej(d.request.status);
 
                         //  Server.errorHandler(options, d.request.status);
                     });
@@ -154,22 +162,25 @@ export default class Server {
     }
 
     static dvm(name, params, options) {
-        options = options || { catch: false,
+        options = options || {
+            catch: false,
             timeout: Server.timeOut
         };
+
+
 
         let timeout = options.timeOut || Server.timeOut;
         let cache = options.cache || false;
 
         let hash = "";
 
-        if (process.env.NODE_ENV === "development") 
+        if (process.env.NODE_ENV === "development")
             hash = `${name}${params
                 ? JSON.stringify(params)
                 : ""}`;
-        else 
-            hash = hashcode({name, params});
-        
+        else
+            hash = hashcode({ name, params });
+
         //   hash = `${name}.dvm/${params ? hashcode(params) : ""}`;
 
         return new Promise((res, rej) => {
@@ -177,34 +188,33 @@ export default class Server {
                 .getItem(hash)
                 .then(a => {
                     if (cache && a) {
+                        res(a);
 
-
-                        return res(a);
+                        return;
                     }
 
                     Server.beforSend();
-                    axios({method: "get", url: `${name}.dvm`, params: params, timeout: timeout}).then(d => {
+                    axios({ method: "get", url: `${name}.dvm`, params: params, timeout: timeout }).then(d => {
 
                         Server.afterRecieve();
                         localForage.setItem(hash, d.data);
 
+
                         Server.checkuser(d.data.header.userState);
 
                         if (d.header) {
-                            if (d.header.result !== 0) 
-                                return rej(d.data);
-                            else 
-                                return res(d.data);
-                            }
-                        else 
-                            return res(d);
+                            if (d.header.result !== 0)
+                                rej(d.data);
                         }
+                        else
+                            res(d.data);
+                    }
                     ).catch(d => {
                         Server.afterRecieve();
 
                         Server.errorHooks(d.request.status);
 
-                        return rej(d.request.status);
+                        rej(d.request.status);
 
                         //  Server.errorHandler(options, d.request.status);
                     });
