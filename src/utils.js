@@ -4,7 +4,7 @@ export function hashcode(inobjin){
 	//return;
 	var hash = 0;
 
-	if (inobj.length == 0) return hash;
+	if (inobj.length === 0) return hash;
 	
 	for (let i = 0; i < inobj.length; i++) {
 		
