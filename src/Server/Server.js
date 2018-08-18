@@ -6,7 +6,7 @@ import localForage from "localforage";
 export default class Server {
     static hookLoginRequire = () => {};
     static hook403 = () => {};
-
+    static hookAll=()=>{};
     static start() {}
     static end() {}
 
@@ -27,6 +27,7 @@ export default class Server {
     }
 
     static errorHooks(e) {
+        Server.hookAll();
         switch (e) {
             case 403:
                 Server.hook403();
@@ -99,7 +100,7 @@ export default class Server {
 
                     if (cache && a) {
 
-                        return res(a);
+                         res(a);
                     }
 
                     Server.beforSend();
@@ -134,13 +135,13 @@ export default class Server {
                             localForage.setItem(hash, d.data);
                             if (d.header.result !== 0) 
                                  rej(d.data);
-                             return prom;
+                             
                             }
                         else {
 
                             localForage.setItem(hash, d.data);
                             res(d.data);
-                            return prom;
+                            
                         }
                     })
                     .catch(d => {
@@ -150,7 +151,7 @@ export default class Server {
 
                         Server.errorHooks(d.request.status);
                         rej(d.request.status);
-                        return prom;
+                        
 
                         //  Server.errorHandler(options, d.request.status);
                     });
@@ -185,7 +186,7 @@ export default class Server {
                     if (cache && a) {
                         res(a);
 
-                        return a;
+                        
                     }
 
                     Server.beforSend();
@@ -203,14 +204,14 @@ export default class Server {
                             }
                         else 
                             res(d.data);
-                        return d.data;
+                        
                     }).catch(d => {
                         Server.afterRecieve();
 
                         Server.errorHooks(d.request.status);
 
                         rej(d.request.status);
-                        return d.request.status;
+                        
 
                         //  Server.errorHandler(options, d.request.status);
                     });
