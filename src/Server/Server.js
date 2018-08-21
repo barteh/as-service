@@ -233,7 +233,7 @@ export default class Server {
                     'Content-Type': 'multipart/form-data'
                 }
             }
-        });
+        }).then(a=>a.data);
     }
 
 }
