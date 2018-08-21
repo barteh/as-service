@@ -6,7 +6,7 @@ import localForage from "localforage";
 export default class Server {
     static hookLoginRequire = () => {};
     static hook403 = () => {};
-    static hookAll=()=>{};
+    static hookAll = () => {};
     static start() {}
     static end() {}
 
@@ -92,7 +92,7 @@ export default class Server {
         // if(options.cache) hash=hashcode({cont,meth,params});
         // hash=`${cont}/${meth}.ctrl/${params?hashcode(params):""}`;
 
-        let prom= new Promise((res, rej) => {
+        let prom = new Promise((res, rej) => {
 
             localForage
                 .getItem(hash)
@@ -100,7 +100,7 @@ export default class Server {
 
                     if (cache && a) {
 
-                         res(a);
+                        res(a);
                     }
 
                     Server.beforSend();
@@ -111,7 +111,7 @@ export default class Server {
                     const dats = options.method === "post"
                         ? objectToFormData(params)
                         : null;
-                    
+
                     axios({
                         //  ax({
                         method: options.method,
@@ -134,24 +134,22 @@ export default class Server {
                         if (d.header) {
                             localForage.setItem(hash, d.data);
                             if (d.header.result !== 0) 
-                                 rej(d.data);
-                             
+                                rej(d.data);
+
                             }
                         else {
 
                             localForage.setItem(hash, d.data);
                             res(d.data);
-                            
+
                         }
-                    })
-                    .catch(d => {
+                    }).catch(d => {
 
                         console.log(66, d.request.status);
                         Server.afterRecieve();
 
                         Server.errorHooks(d.request.status);
                         rej(d.request.status);
-                        
 
                         //  Server.errorHandler(options, d.request.status);
                     });
@@ -186,7 +184,6 @@ export default class Server {
                     if (cache && a) {
                         res(a);
 
-                        
                     }
 
                     Server.beforSend();
@@ -204,18 +201,38 @@ export default class Server {
                             }
                         else 
                             res(d.data);
-                        
-                    }).catch(d => {
+
+                        }
+                    ).catch(d => {
                         Server.afterRecieve();
 
                         Server.errorHooks(d.request.status);
 
                         rej(d.request.status);
-                        
 
                         //  Server.errorHandler(options, d.request.status);
                     });
                 });
+        });
+    }
+
+    static get(url, params, options) {
+        options = options || { catch: false,
+            timeout: Server.timeOut
+        };
+
+        let timeout = options.timeOut || Server.timeOut;
+
+        return axios({
+            method: "get",
+            url,
+            params,
+            timeout,
+            config: {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            }
         });
     }
 
