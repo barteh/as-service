@@ -175,13 +175,19 @@ export default class AsService {
         }
     }
 
-    publishAll() {}
+    publishAll() {
+        this.publish();
+    }
     publish(...params) {
+        
         let sub = this.getSub(...params);
-        sub.next(this.$data);
+        const v=sub.sub.getValue();
+        sub.sub.next(sub.sub.getValue());
         this
-            ._sub
-            .next(this.$data);
+        ._sub
+        .next(v);
+        console.log(77,v,sub);
+       
     }
 
     getSub(...params) {
