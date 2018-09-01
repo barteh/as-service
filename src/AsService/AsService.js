@@ -126,24 +126,25 @@ export default class AsService {
         }
     
     load(...params) {
-  
-        var subfor=this.getSub(params);
+
+        var subfor = this.getSub(params);
         this._lastParams = params;
         if (this._source) {
-            
+
             if (this._forceSourceLoad) {
                 return this.forceLoad(...params);
             } else {
-                
-                subfor.sub.state="loading";
+
+                subfor.sub.state = "loading";
                 return this
                     ._source
                     .get(...params)
                     .then(a => {
-                       subfor.sub.state="idle"; 
+                        subfor.sub.state = "idle";
                         return this._mapper
-                        ? this._mapper(a, ...params)
-                        : a})
+                            ? this._mapper(a, ...params)
+                            : a
+                    })
                     .catch(e => e);
             }
 
@@ -154,53 +155,63 @@ export default class AsService {
     }
 
     get(...params) {
+        console.log(228, this);
         let subfor = this.getSub(...params);
-        
-if(this._source){
-   return this._source.get(...params)
-    .then(a=>this.mapper(a));
-}
-else
-      {  if (subfor.state === "start") {
-            
-            return this.load(...params);
+
+        if (this._source) {
+            return this
+                ._source
+                .get(...params)
+                .then(a => {
+                    if(this.mapper)
+                    return this.mapper(a,...params);
+                    else 
+                    return a;
+                });
+        } else {
+            if (subfor.state === "start") {
+
+                return this.load(...params);
+            } else {
+
+                let ret = new Promise((res, rej) => {
+                    let subs = subfor
+                        .sub
+                        .subscribe(a => {
+
+                            res(a);
+                            subs.unsubscribe();
+                        });
+                    let esubs = subfor
+                        .errorSub
+                        .subscribe(e => {
+                            rej(e);
+                            esubs.unsubscribe();
+                        });
+
+                });
+
+                return ret;
+            }
         }
-        else {
-            
-            let ret = new Promise((res, rej) => {
-                let subs = subfor
-                    .sub
-                    .subscribe(a => {
-                        
-                        res(a);
-                        subs.unsubscribe();
-                    });
-                let esubs = subfor
-                    .errorSub
-                    .subscribe(e => {
-                        rej(e);
-                        esubs.unsubscribe();
-                    });
-
-            });
-
-            return ret;
-        }}
     }
 
     publishAll() {
         this.publish();
     }
     publish(...params) {
-        
+
         let sub = this.getSub(...params);
-        const v=sub.sub.getValue();
-        sub.sub.next(sub.sub.getValue());
+        const v = sub
+            .sub
+            .getValue();
+        sub
+            .sub
+            .next(sub.sub.getValue());
         this
-        ._sub
-        .next(v);
-        
-       
+            ._sub
+            .next(v);
+
     }
 
     getSub(...params) {
@@ -239,7 +250,7 @@ else
     }
 
     _reload(...params) {
-        
+
         let subfor = this.getSub(...params);
         if (subfor.state === "loading") {
 
