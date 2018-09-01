@@ -126,19 +126,24 @@ export default class AsService {
         }
     
     load(...params) {
-
+  
+        var subfor=this.getSub(params);
         this._lastParams = params;
         if (this._source) {
+            
             if (this._forceSourceLoad) {
                 return this.forceLoad(...params);
             } else {
-
+                
+                subfor.sub.state="loading";
                 return this
                     ._source
                     .get(...params)
-                    .then(a => this._mapper
+                    .then(a => {
+                       subfor.sub.state="idle"; 
+                        return this._mapper
                         ? this._mapper(a, ...params)
-                        : a)
+                        : a})
                     .catch(e => e);
             }
 
@@ -149,16 +154,24 @@ export default class AsService {
     }
 
     get(...params) {
-
         let subfor = this.getSub(...params);
-
-        if (subfor.state === "start") 
+        
+if(this._source){
+   return this._source.get(...params)
+    .then(a=>this.mapper(a));
+}
+else
+      {  if (subfor.state === "start") {
+            
             return this.load(...params);
+        }
         else {
+            
             let ret = new Promise((res, rej) => {
                 let subs = subfor
                     .sub
                     .subscribe(a => {
+                        
                         res(a);
                         subs.unsubscribe();
                     });
@@ -172,7 +185,7 @@ export default class AsService {
             });
 
             return ret;
-        }
+        }}
     }
 
     publishAll() {
@@ -186,7 +199,7 @@ export default class AsService {
         this
         ._sub
         .next(v);
-        console.log(77,v,sub);
+        
        
     }
 
@@ -226,7 +239,7 @@ export default class AsService {
     }
 
     _reload(...params) {
-
+        
         let subfor = this.getSub(...params);
         if (subfor.state === "loading") {
 
