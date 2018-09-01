@@ -1,6 +1,6 @@
 {
   "name": "@barteh/as-service",
-  "version": "1.0.45",
+  "version": "1.0.46",
   "description": "observable data service based on rxjs using axios for conunicate with server via http (XHR). ",
   "main": "index.js",
   "scripts": {

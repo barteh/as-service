@@ -155,7 +155,6 @@ export default class AsService {
     }
 
     get(...params) {
-        console.log(228, this);
         let subfor = this.getSub(...params);
 
         if (this._source) {
