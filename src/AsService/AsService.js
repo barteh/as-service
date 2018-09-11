@@ -1,4 +1,5 @@
 import Rx from 'rxjs';
+import {Object} from 'core-js';
 
 var btoa = btoa || function (str) {
     return new Buffer(str).toString('base64');
@@ -162,11 +163,12 @@ export default class AsService {
                 ._source
                 .get(...params)
                 .then(a => {
-                    if(this.mapper)
-                    return this.mapper(a,...params);
+                    if (this.mapper) 
+                        return this.mapper(a, ...params);
                     else 
-                    return a;
-                });
+                        return a;
+                    }
+                );
         } else {
             if (subfor.state === "start") {
 
@@ -204,12 +206,20 @@ export default class AsService {
         const v = sub
             .sub
             .getValue();
+        let nv = {};
+        if (typeof v === "object") {
+            nv = Object.assign({}, v)
+        } else {
+            nv = Object.assign(v);
+        }
+
         sub
             .sub
-            .next(sub.sub.getValue());
+            .next(nv);
+
         this
             ._sub
-            .next(v);
+            .next(nv);
 
     }
 
