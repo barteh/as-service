@@ -206,10 +206,17 @@ export default class AsService {
         const v = sub
             .sub
             .getValue();
-        let nv = {};
+        let nv = undefined;
+        if(Array.isArray(v)){
+            nv=Array.from(v);
+   
+           }
+        else 
         if (typeof v === "object") {
-            nv = Object.assign({}, v)
-        } else {
+            nv = Object.assign({}, v);
+        } 
+
+        else {
             nv = Object.assign(v);
         }
 
