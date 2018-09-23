@@ -144,7 +144,8 @@ export default class Server {
 
                         }
                     }).catch(d => {
-
+                        if (d && d.data && d.data.header) 
+                            Server.checkuser(d.data.header.userState);
                         console.log(66, d.request.status);
                         Server.afterRecieve();
 
@@ -204,6 +205,8 @@ export default class Server {
 
                         }
                     ).catch(d => {
+                        if (d && d.data && d.data.header) 
+                            Server.checkuser(d.data.header.userState);
                         Server.afterRecieve();
 
                         Server.errorHooks(d.request.status);
@@ -233,7 +236,7 @@ export default class Server {
                     'Content-Type': 'multipart/form-data'
                 }
             }
-        }).then(a=>a.data);
+        }).then(a => a.data);
     }
 
 }
