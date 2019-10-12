@@ -1,9 +1,45 @@
-﻿import axios from "axios";
-import {hashcode, objectToFormData} from "../utils";
+﻿import axios,{CancelToken} from "axios";
+
+import {hashcode, objectToFormData, isBrowser} from "../utils";
 
 import localForage from "localforage";
 
+const fakelocaLForge = {
+    setItem: () => new Promise(r => r(undefined)),
+    getItem: () => new Promise(r => r(undefined))
+
+}
+
+
+
+
+let tmpLocalForage = isBrowser()
+    ? localForage
+    : fakelocaLForge;
+
+
+
+/**
+ * @class
+ * @classdesc axios based XHR request
+ */
 export default class Server {
+
+static  _reqs={};    
+
+    static addRequest(hash,canceller){
+        if(hash)
+       Server._reqs['e'+hash]={hash,canceller}
+
+        console.log("add",Server._reqs);
+    }
+
+    static removeRequest(hash){
+        console.log("delete",Server._reqs);
+        delete Server._reqs['e'+hash];
+        
+    }
+
     static hookLoginRequire = () => {};
     static hook403 = () => {};
     static hookAll = () => {};
@@ -58,7 +94,7 @@ export default class Server {
         }
     }
 
-    static timeOut = 5000;
+    static timeOut = 12000;
     static axiosInstance = null;
     static getAxios() {
         if (!Server.axiosInstance) 
@@ -68,10 +104,13 @@ export default class Server {
         return Server.axiosInstance;
     }
     static controller(cont, meth, params, options) {
-        options = options || { catch: false,
+    
+        options = options || {
+            cache: false,
             timeout: Server.timeOut,
             method: 'GET'
         };
+        options.cancel = options.cancel || Server.generalCancel;
         options.method = options.method || "get";
         options.method = options
             .method
@@ -93,8 +132,7 @@ export default class Server {
         // hash=`${cont}/${meth}.ctrl/${params?hashcode(params):""}`;
 
         let prom = new Promise((res, rej) => {
-
-            localForage
+            tmpLocalForage
                 .getItem(hash)
                 .then(a => {
 
@@ -111,7 +149,7 @@ export default class Server {
                     const dats = options.method === "post"
                         ? objectToFormData(params)
                         : null;
-
+var ct=undefined;
                     axios({
                         //  ax({
                         method: options.method,
@@ -122,31 +160,34 @@ export default class Server {
                         config: {
                             headers: {
                                 'Content-Type': 'multipart/form-data'
-                            }
+                            },
+                            cancelToken:new CancelToken(c=>{
+                                    ct=c;
+                            })
                         }
-                        //:{}}
-                    }).then(d => {
 
+                    }).then(d => {
+                        Server.removeRequest(hash);
                         Server.afterRecieve();
 
                         Server.checkuser(d.data.header.userState);
 
                         if (d.header) {
-                            localForage.setItem(hash, d.data);
+                            tmpLocalForage.setItem(hash, d.data);
                             if (d.header.result !== 0) 
                                 rej(d.data);
 
                             }
                         else {
 
-                            localForage.setItem(hash, d.data);
+                            tmpLocalForage.setItem(hash, d.data);
                             res(d.data);
 
                         }
                     }).catch(d => {
+                        Server.removeRequest(hash);
                         if (d && d.data && d.data.header) 
                             Server.checkuser(d.data.header.userState);
-                        console.log(66, d.request.status);
                         Server.afterRecieve();
 
                         Server.errorHooks(d.request.status);
@@ -154,15 +195,21 @@ export default class Server {
 
                         //  Server.errorHandler(options, d.request.status);
                     });
+                  
+                    
+                    Server.addRequest(hash,ct);
                 });
         });
         return prom;
     }
 
     static dvm(name, params, options) {
-        options = options || { catch: false,
-            timeout: Server.timeOut
+        options = options || {
+            cache: false,
+            timeout: Server.timeOut,
+            cancel: Server.generalCancel
         };
+
 
         let timeout = options.timeOut || Server.timeOut;
         let cache = options.cache || false;
@@ -179,7 +226,7 @@ export default class Server {
         //   hash = `${name}.dvm/${params ? hashcode(params) : ""}`;
 
         return new Promise((res, rej) => {
-            localForage
+            tmpLocalForage
                 .getItem(hash)
                 .then(a => {
                     if (cache && a) {
@@ -188,10 +235,15 @@ export default class Server {
                     }
 
                     Server.beforSend();
-                    axios({method: "get", url: `${name}.dvm`, params: params, timeout: timeout}).then(d => {
+                    axios({
+                        method: "get",
+                        url: `${name}.dvm`,
+                        params: params,
+                        timeout: timeout,
+                    }).then(d => {
 
                         Server.afterRecieve();
-                        localForage.setItem(hash, d.data);
+                        tmpLocalForage.setItem(hash, d.data);
 
                         Server.checkuser(d.data.header.userState);
 
