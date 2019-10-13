@@ -6,7 +6,6 @@
   "scripts": {
     "test": " npm run build && node ./lib/test",
     "server-test": " npm run build && node ./lib/Server/server.test.js",
-
     "build": "npm run lint && babel src -d ./lib && babel index.d.ts -o index.js ",
     "up": "npm publish --access public --scope=barteh",
     "lint": "./node_modules/.bin/eslint src/**/*.js && echo \"eslint code is ok\""
