@@ -1,4 +1,4 @@
-﻿import axios,{CancelToken} from "axios";
+﻿import axios from "axios";
 
 import {hashcode, objectToFormData, isBrowser} from "../utils";
 
@@ -160,10 +160,8 @@ var ct=undefined;
                         config: {
                             headers: {
                                 'Content-Type': 'multipart/form-data'
-                            },
-                            cancelToken:new CancelToken(c=>{
-                                    ct=c;
-                            })
+                            }
+                       
                         }
 
                     }).then(d => {
