@@ -1,3 +1,16 @@
+/*
+ * File: AsService.js
+ * Project: @barteh/as-service
+ * File Created: Thursday, 13th June 2019 7:27:52 am
+ * Author: rafat (ahadrt@gmail.com)
+ * -----
+ * Last Modified: Wednesday, 16th October 2019 1:46:46 am
+ * Modified By: rafat (ahadrt@gmail.com>)
+ * -----
+ * Copyright 2018 - 2019 Borna Mehr Fann, Borna Mehr Fann
+ * Trademark barteh
+ */
+
 import Rx from 'rxjs';
 import {Object} from 'core-js';
 
@@ -8,7 +21,7 @@ export default class AsService {
 
     constructor(loader, mapper, autoload, paramcount, forceSourceLoad) {
         if (!loader) {
-            console.log("barte error:", "btService", "loader is not set");
+            console.log("barte error:", "asService", "loader is not set");
             //return undefined;
         }
 
@@ -106,8 +119,8 @@ export default class AsService {
 
     }
 
-    refresh() {
-        return this.forceLoad(...this._lastParams);
+    refresh(...params) {
+        return this.forceLoad(...(params|| this._lastParams));
     }
 
     forceLoad(...params) {
@@ -303,16 +316,16 @@ export default class AsService {
                     subfor.sourceObservable.unsubscribe();
                 subfor.sourceObservable = r.subscribe(b => {
 
-                    let ret = this._mapper
+                    let ret2 = this._mapper
                         ? this._mapper(b, ...params)
                         : b;
                     subfor
                         .sub
-                        .next(ret);
+                        .next(ret2);
 
                     this
                         ._sub
-                        .next(ret);
+                        .next(ret2);
 
                 })
 
@@ -321,31 +334,33 @@ export default class AsService {
 
                     subfor.state = "idle";
 
-                    let ret = this._mapper
+                    let ret2 = this._mapper
                         ? this._mapper(d, ...params)
                         : d;
 
-                    this.$data = ret;
+                    this.$data = ret2;
 
-                    res(ret);
+                    res(ret2);
 
                     subfor
                         .sub
-                        .next(ret);
+                        .next(ret2);
 
                     this
                         ._sub
-                        .next(ret);
+                        .next(ret2);
                     return ret;
                 }).catch(e => {
                     subfor.state = "start";
+                    res(e)
+                    rej(e)
+                  //  rej(e)
+                    // try {
+                    //     res(e);
 
-                    try {
-                        res(ret);
-
-                    } catch (e) {
-                        rej(e);
-                    }
+                    // } catch (e2) {
+                    //     rej(e2);
+                    // }
 
                     subfor
                         .errorSub

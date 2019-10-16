@@ -1,4 +1,17 @@
-﻿import axios from "axios";
+﻿/*
+ * File: Server.js
+ * Project: @barteh/as-service
+ * File Created: Sunday, 29th July 2018 1:41:36 pm
+ * Author: rafat (ahadrt@gmail.com)
+ * -----
+ * Last Modified: Wednesday, 16th October 2019 1:46:31 am
+ * Modified By: rafat (ahadrt@gmail.com>)
+ * -----
+ * Copyright 2018 - 2019 Borna Mehr Fann, Borna Mehr Fann
+ * Trademark barteh
+ */
+
+import axios from "axios";
 
 import {hashcode, objectToFormData, isBrowser} from "../utils";
 
@@ -31,11 +44,9 @@ static  _reqs={};
         if(hash)
        Server._reqs['e'+hash]={hash,canceller}
 
-        console.log("add",Server._reqs);
     }
 
     static removeRequest(hash){
-        console.log("delete",Server._reqs);
         delete Server._reqs['e'+hash];
         
     }
