@@ -13,12 +13,23 @@
 
 import Rx from 'rxjs';
 import {Object} from 'core-js';
+import {btoa} from '../utils';
 
-var btoa = btoa || function (str) {
-    return new Buffer(str).toString('base64');
-};
+/**
+ * @class
+ * @classdesc an Observable service of everything
+ * @name AsService
+ */
 export default class AsService {
 
+    /**
+     * @constructor
+     * @param {any} loader constant primitives | function | Promise | Observable
+     * @param {function} mapper  function convert returned data
+     * @param {boolean} autoload if true automaticaly load promis or async data
+     * @param {number} paramcount number of parameters (internal use)
+     * @param {boolean} forceSourceLoad if true force to reload even when data is exist
+     */
     constructor(loader, mapper, autoload, paramcount, forceSourceLoad) {
         if (!loader) {
             console.log("barte error:", "asService", "loader is not set");
@@ -49,8 +60,34 @@ export default class AsService {
 
         this.$$isAsService = true;
     }
+
     _forceSourceLoad = false;
     _paramCount = 0;
+
+    /**
+     * @description make derived service from source service with new other mapper function
+     * @param {function} mapper reduser function converts data with extra parameters
+     * @param {booleaan} forceLoadSource if true force to load even when data exist (for refresh data)
+     * @returns {AsService} returns new instance of AsService 
+     * @example 
+     * ```js
+     * const s1=new AsService(x=>2*x); // 2*x
+     * const s2=p1.map((data,y)=>{data+y}); //2*x+y
+     * 
+     * p2.load(3,2)
+     * .then(result=>{console.log("result: "+result)}); // result: 8
+     * 
+     * // or subscribe it
+     * 
+     * p2.Observable(3,2)
+     * .subscribe(r=>{console.log("result: "+result)}) // result: 16
+     * 
+     * p2.Observable(5,2)
+     * .subscribe(r=>{console.log("result: "+result)}) // nothing not loaded yet p2.load(5,2)
+     * 
+     * ```
+     * service.map(())
+     */
     map(mapper, forceLoadSource) {
 
         if (!mapper || typeof mapper !== "function") {
@@ -60,7 +97,11 @@ export default class AsService {
             return new AsService(this, mapper, this._autoload, mapper.length - 1, forceLoadSource);
         }
     
-    getMapper() {
+    /**
+     * @description get mapper function of this service
+     * @returns {function} mapper function
+     */
+        getMapper() {
         if (this._source) {
             let sourceMapper = this
                 ._source
@@ -76,6 +117,10 @@ export default class AsService {
         return this._mapper;
     }
 
+    /**
+     * @description gets loader function of service
+     * @returns {function} loader function
+     */
     getLoader() {
         if (this._source) {
             return this
@@ -110,6 +155,12 @@ export default class AsService {
             .filter(a => a !== undefined);
 
     }
+
+    /**
+     * 
+     * @param  {...any} params 
+     * @requires rsjs observable
+     */
     Observable(...params) {
         let subfor = this.getSub(...params);
 
@@ -120,7 +171,7 @@ export default class AsService {
     }
 
     refresh(...params) {
-        return this.forceLoad(...(params|| this._lastParams));
+        return this.forceLoad(...(params || this._lastParams));
     }
 
     forceLoad(...params) {
@@ -210,9 +261,16 @@ export default class AsService {
         }
     }
 
+    /**
+     * @description calls all subscribers for all parameter combination
+     */
     publishAll() {
         this.publish();
     }
+    /**
+     * @description calls all subscribers for just desired parameter combination
+     * @param  {...any} params 
+     */
     publish(...params) {
 
         let sub = this.getSub(...params);
@@ -220,16 +278,12 @@ export default class AsService {
             .sub
             .getValue();
         let nv = undefined;
-        if(Array.isArray(v)){
-            nv=Array.from(v);
-   
-           }
-        else 
-        if (typeof v === "object") {
-            nv = Object.assign({}, v);
-        } 
+        if (Array.isArray(v)) {
+            nv = Array.from(v);
 
-        else {
+        } else if (typeof v === "object") {
+            nv = Object.assign({}, v);
+        } else {
             nv = Object.assign(v);
         }
 
@@ -354,13 +408,7 @@ export default class AsService {
                     subfor.state = "start";
                     res(e)
                     rej(e)
-                  //  rej(e)
-                    // try {
-                    //     res(e);
-
-                    // } catch (e2) {
-                    //     rej(e2);
-                    // }
+                    //  rej(e) try {     res(e); } catch (e2) {     rej(e2); }
 
                     subfor
                         .errorSub
@@ -398,3 +446,6 @@ export default class AsService {
     _getFromPromise() {}
 
 }
+
+
+
