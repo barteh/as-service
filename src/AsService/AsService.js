@@ -68,26 +68,26 @@ export default class AsService {
      * @description make derived service from source service with new other mapper function
      * @param {function} mapper reduser function converts data with extra parameters
      * @param {booleaan} forceLoadSource if true force to load even when data exist (for refresh data)
-     * @returns {AsService} returns new instance of AsService 
-     * @example 
+     * @returns {AsService} returns new instance of AsService
+     * @example
      * ```js
      * const s1=new AsService(x=>2*x); // 2*x
      * const s2=p1.map((data,y)=>{data+y}); //2*x+y
-     * 
+     *
      * p2.load(3,2)
      * .then(result=>{console.log("result: "+result)}); // result: 8
-     * 
+     *
      * // or subscribe it
-     * 
+     *
      * p2.Observable(3,2)
      * .subscribe(r=>{console.log("result: "+result)}) // result: 16
-     * 
+     *
      * p2.Observable(5,2)
      * .subscribe(r=>{console.log("result: "+result)}) // nothing not loaded yet p2.load(5,2)
-     * 
+     *
      * ```
-     * service.map(())
-     */
+     *
+     *      */
     map(mapper, forceLoadSource) {
 
         if (!mapper || typeof mapper !== "function") {
@@ -101,11 +101,12 @@ export default class AsService {
      * @description get mapper function of this service
      * @returns {function} mapper function
      */
-        getMapper() {
+    getMapper() {
         if (this._source) {
             let sourceMapper = this
                 ._source
                 .getMapper();
+            console.log(95, sourceMapper);
             if (sourceMapper) {
                 if (this._mapper) 
                     return (...params) => this._mapper(sourceMapper(...params), ...params);
@@ -157,8 +158,8 @@ export default class AsService {
     }
 
     /**
-     * 
-     * @param  {...any} params 
+     *
+     * @param  {...any} params
      * @requires rsjs observable
      */
     Observable(...params) {
@@ -223,6 +224,7 @@ export default class AsService {
         let subfor = this.getSub(...params);
 
         if (this._source) {
+
             return this
                 ._source
                 .get(...params)
@@ -234,8 +236,8 @@ export default class AsService {
                     }
                 );
         } else {
-            if (subfor.state === "start") {
 
+            if (subfor.state === "start") {
                 return this.load(...params);
             } else {
 
@@ -243,7 +245,6 @@ export default class AsService {
                     let subs = subfor
                         .sub
                         .subscribe(a => {
-
                             res(a);
                             subs.unsubscribe();
                         });
@@ -269,7 +270,7 @@ export default class AsService {
     }
     /**
      * @description calls all subscribers for just desired parameter combination
-     * @param  {...any} params 
+     * @param  {...any} params
      */
     publish(...params) {
 
@@ -315,8 +316,7 @@ export default class AsService {
                     ? new Rx.BehaviorSubject()
                     : this
                         ._source
-                        .ErrorObservable(...params)
-                        .map(a => this._mapper(a, ...pars)),
+                        .ErrorObservable(...params),
                 state: this._source === undefined
                     ? "start"
                     : "idle"
@@ -369,7 +369,6 @@ export default class AsService {
                 if (subfor.sourceObservable !== undefined) 
                     subfor.sourceObservable.unsubscribe();
                 subfor.sourceObservable = r.subscribe(b => {
-
                     let ret2 = this._mapper
                         ? this._mapper(b, ...params)
                         : b;
@@ -380,14 +379,15 @@ export default class AsService {
                     this
                         ._sub
                         .next(ret2);
-
+                    subfor
+                        .sourceObservable
+                        .unsubscribe();
                 })
 
             } else if (r instanceof Promise) {
                 fnret.then(d => {
 
                     subfor.state = "idle";
-
                     let ret2 = this._mapper
                         ? this._mapper(d, ...params)
                         : d;
@@ -406,13 +406,11 @@ export default class AsService {
                     return ret;
                 }).catch(e => {
                     subfor.state = "start";
-                    res(e)
-                    rej(e)
-                    //  rej(e) try {     res(e); } catch (e2) {     rej(e2); }
 
                     subfor
                         .errorSub
                         .next(e);
+                    rej(e);
 
                     this
                         ._errorSub
@@ -425,6 +423,7 @@ export default class AsService {
                 let ret = this._mapper
                     ? this._mapper(r, ...params)
                     : r;
+
                 res(ret);
                 subfor
                     .sub
@@ -443,9 +442,4 @@ export default class AsService {
         return ret;
     }
 
-    _getFromPromise() {}
-
 }
-
-
-
