@@ -177,16 +177,18 @@ export default class Server {
                         Server.removeRequest(hash);
                         Server.afterRecieve();
 
-                        Server.checkuser(d.data.header.userState);
+                        
 
-                        if (d.header) {
+                        if (d.data && d.data.header) {
+                            Server.checkuser(d.data.header.userState);
                             tmpLocalForage.setItem(hash, d.data);
-                            if (d.header.result !== 0) 
+                            if (d.data.header.result !== 0) 
                                 rej(d.data);
+                            else 
+                                res(d.data);
 
                             }
                         else {
-
                             tmpLocalForage.setItem(hash, d.data);
                             res(d.data);
 
@@ -196,12 +198,16 @@ export default class Server {
                         if (d && d.data && d.data.header) 
                             Server.checkuser(d.data.header.userState);
                         Server.afterRecieve();
-                        if (d.request) 
+                        if (d.request){ 
                             Server.errorHooks(d.request.status);
-                        else 
+                            rej(d.request.status);
+                        }
+                        else {
                             Server.errorHooks(d);
+                            rej(d);
+                        }
                         
-                        rej(d.request.status);
+                        
 
                         //  Server.errorHandler(options, d.request.status);
                     });
