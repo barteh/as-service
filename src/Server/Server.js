@@ -23,14 +23,9 @@ const fakelocaLForge = {
 
 }
 
-
-
-
 let tmpLocalForage = isBrowser()
     ? localForage
     : fakelocaLForge;
-
-
 
 /**
  * @class
@@ -38,17 +33,20 @@ let tmpLocalForage = isBrowser()
  */
 export default class Server {
 
-static  _reqs={};    
+    static _reqs = {};
 
-    static addRequest(hash,canceller){
-        if(hash)
-       Server._reqs['e'+hash]={hash,canceller}
-
+    static addRequest(hash, canceller) {
+        if (hash) 
+            Server._reqs['e' + hash] = {
+                hash,
+                canceller
+            }
+        
     }
 
-    static removeRequest(hash){
-        delete Server._reqs['e'+hash];
-        
+    static removeRequest(hash) {
+        delete Server._reqs['e' + hash];
+
     }
 
     static hookLoginRequire = () => {};
@@ -115,7 +113,7 @@ static  _reqs={};
         return Server.axiosInstance;
     }
     static controller(cont, meth, params, options) {
-    
+
         options = options || {
             cache: false,
             timeout: Server.timeOut,
@@ -160,7 +158,7 @@ static  _reqs={};
                     const dats = options.method === "post"
                         ? objectToFormData(params)
                         : null;
-var ct=undefined;
+                    var ct = undefined;
                     axios({
                         //  ax({
                         method: options.method,
@@ -172,7 +170,7 @@ var ct=undefined;
                             headers: {
                                 'Content-Type': 'multipart/form-data'
                             }
-                       
+
                         }
 
                     }).then(d => {
@@ -198,15 +196,17 @@ var ct=undefined;
                         if (d && d.data && d.data.header) 
                             Server.checkuser(d.data.header.userState);
                         Server.afterRecieve();
-
-                        Server.errorHooks(d.request.status);
+                        if (d.request) 
+                            Server.errorHooks(d.request.status);
+                        else 
+                            Server.errorHooks(d);
+                        
                         rej(d.request.status);
 
                         //  Server.errorHandler(options, d.request.status);
                     });
-                  
-                    
-                    Server.addRequest(hash,ct);
+
+                    Server.addRequest(hash, ct);
                 });
         });
         return prom;
@@ -218,7 +218,6 @@ var ct=undefined;
             timeout: Server.timeOut,
             cancel: Server.generalCancel
         };
-
 
         let timeout = options.timeOut || Server.timeOut;
         let cache = options.cache || false;
@@ -244,12 +243,7 @@ var ct=undefined;
                     }
 
                     Server.beforSend();
-                    axios({
-                        method: "get",
-                        url: `${name}.dvm`,
-                        params: params,
-                        timeout: timeout,
-                    }).then(d => {
+                    axios({method: "get", url: `${name}.dvm`, params: params, timeout: timeout}).then(d => {
 
                         Server.afterRecieve();
                         tmpLocalForage.setItem(hash, d.data);

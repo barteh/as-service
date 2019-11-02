@@ -106,7 +106,6 @@ export default class AsService {
             let sourceMapper = this
                 ._source
                 .getMapper();
-            console.log(95, sourceMapper);
             if (sourceMapper) {
                 if (this._mapper) 
                     return (...params) => this._mapper(sourceMapper(...params), ...params);
