@@ -144,10 +144,10 @@ export default class Server {
             tmpLocalForage
                 .getItem(hash)
                 .then(a => {
-
+                    console.log(6644,a,cache);
                     if (cache && a) {
 
-                        res(a);
+                        return res(a);
                     }
 
                     Server.beforSend();
@@ -244,7 +244,7 @@ export default class Server {
                 .getItem(hash)
                 .then(a => {
                     if (cache && a) {
-                        res(a);
+                       return res(a);
 
                     }
 
