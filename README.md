@@ -86,6 +86,20 @@ srv5.Observable("Ahad", "Rafat")
 .subscribe(a => console.log("srv5:", a));
 ```
 
+
+#### 6- observe state
+> current state of a service is observable
+    states can be one of ["start","loading","idle"]
+```js
+
+var srv6=new AsService(8);
+
+srv6.StateObservable(77).subscribe(a=>console.log("current state is: ",a))
+
+srv6.load(77);
+
+```
+
 #### Output
 
 ```cmd

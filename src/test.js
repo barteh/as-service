@@ -2,6 +2,9 @@
 import AsService from "./AsService"
 import Server from "./Server"
 
+
+
+
 //1- primitive type (number | string | Array) as service
 
 var srv1=new AsService(5); // number as service
@@ -45,5 +48,17 @@ var server=(x,y)=>new Server.controller("contacts","getcontact",{name:x,lname:y}
 
 var srv5=new AsService(server);
 
-srv5.Observable("Ahad","Rafat")
+
+
+srv5.Observable("param1 value","param2 value")
 .subscribe(a=>console.log("srv5:",a));
+
+
+//6- observe state
+
+var srv6=new AsService(p=>2*p);
+
+srv6.StateObservable(77).subscribe(a=>console.log("current state is: ",a))
+
+srv6.load(77);
+

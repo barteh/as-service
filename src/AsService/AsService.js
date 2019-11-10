@@ -134,6 +134,16 @@ export default class AsService {
     _lastParams = [];
     _sub = new Rx.BehaviorSubject();
     _errorSub = new Rx.BehaviorSubject();
+    _stateSub = new Rx.BehaviorSubject();
+
+    StateObservable(...params) {
+        const subFor=this.getSub(params);
+
+        return subFor
+            .stateSub
+            .filter(a => a !== undefined)
+            
+    }
 
     get ObservableAll() {
         return this
@@ -201,11 +211,13 @@ export default class AsService {
             } else {
 
                 subfor.sub.state = "loading";
+                subfor.stateSub.next("loading");
                 return this
                     ._source
                     .get(...params)
                     .then(a => {
                         subfor.sub.state = "idle";
+                        subfor.stateSub.next("idle");
                         return this._mapper
                             ? this._mapper(a, ...params)
                             : a
@@ -316,6 +328,11 @@ export default class AsService {
                     : this
                         ._source
                         .ErrorObservable(...params),
+                stateSub:this._source === undefined
+                ? new Rx.BehaviorSubject()
+                : this
+                    ._source
+                    .StateObservable(...params),        
                 state: this._source === undefined
                     ? "start"
                     : "idle"
@@ -359,6 +376,7 @@ export default class AsService {
         let ret = new Promise((res, rej) => {
 
             subfor.state = "loading";
+            subfor.stateSub.next("loading");
 
             let fnret = this._loader(...params);
 
@@ -387,6 +405,7 @@ export default class AsService {
                 fnret.then(d => {
 
                     subfor.state = "idle";
+                    subfor.stateSub.next("idle");
                     let ret2 = this._mapper
                         ? this._mapper(d, ...params)
                         : d;
@@ -405,6 +424,7 @@ export default class AsService {
                     return ret;
                 }).catch(e => {
                     subfor.state = "start";
+                    subfor.stateSub.next("start");
 
                     subfor
                         .errorSub
@@ -433,6 +453,7 @@ export default class AsService {
                     .next(ret);
 
                 subfor.state = "idle";
+                subfor.stateSub.next("idle");
 
             }
 
