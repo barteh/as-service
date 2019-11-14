@@ -144,7 +144,6 @@ export default class Server {
             tmpLocalForage
                 .getItem(hash)
                 .then(a => {
-                    console.log(6644,a,cache);
                     if (cache && a) {
 
                         return res(a);
