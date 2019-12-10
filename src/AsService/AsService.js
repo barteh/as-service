@@ -402,6 +402,8 @@ export default class AsService {
                 })
 
             } else if (r instanceof Promise) {
+
+                console.log(4555);
                 fnret.then(d => {
 
                     subfor.state = "idle";
@@ -423,6 +425,8 @@ export default class AsService {
                         .next(ret2);
                     return ret;
                 }).catch(e => {
+                    
+                    console.log(4558);
                     subfor.state = "start";
                     subfor.stateSub.next("start");
 
@@ -434,7 +438,7 @@ export default class AsService {
                     this
                         ._errorSub
                         .next(e);
-
+ 
                 });
 
             } else {
