@@ -176,8 +176,6 @@ export default class Server {
                         Server.removeRequest(hash);
                         Server.afterRecieve();
 
-                        
-
                         if (d.data && d.data.header) {
                             Server.checkuser(d.data.header.userState);
                             tmpLocalForage.setItem(hash, d.data);
@@ -197,16 +195,13 @@ export default class Server {
                         if (d && d.data && d.data.header) 
                             Server.checkuser(d.data.header.userState);
                         Server.afterRecieve();
-                        if (d.request){ 
+                        if (d.request) {
                             Server.errorHooks(d.request.status);
                             rej(d.request.status);
-                        }
-                        else {
+                        } else {
                             Server.errorHooks(d);
                             rej(d);
                         }
-                        
-                        
 
                         //  Server.errorHandler(options, d.request.status);
                     });
@@ -243,7 +238,7 @@ export default class Server {
                 .getItem(hash)
                 .then(a => {
                     if (cache && a) {
-                       return res(a);
+                        return res(a);
 
                     }
 
@@ -293,7 +288,10 @@ export default class Server {
             timeout,
             config: {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    "Access-Control-Allow-Headers": "Content-Type",
+                    "Access-Control-Allow-Methods": "GET,POST,PUT"
+                    //Access-Control-Allow-Origin: https://www.bobank.com
                 }
             }
         }).then(a => a.data);
