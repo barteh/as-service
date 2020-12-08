@@ -1,5 +1,5 @@
 /*
- * File: AsService.js
+ * File: AsService.ts
  * Project: @barteh/as-service
  * File Created: Thursday, 13th June 2019 7:27:52 am
  * Author: rafat (ahadrt@gmail.com)
@@ -7,13 +7,16 @@
  * Last Modified: Wednesday, 16th October 2019 1:46:46 am
  * Modified By: rafat (ahadrt@gmail.com>)
  * -----
- * Copyright 2018 - 2019 Borna Mehr Fann, Borna Mehr Fann
+ * Copyright 2018 - 2021 Borna Mehr Fann, Borna Mehr Fann
  * Trademark barteh
  */
 
-import Rx from 'rxjs';
-import {Object} from 'core-js';
+;
+import {AObservable} from '../AObservable';
+
 import {btoa} from '../utils';
+
+declare type TMapper=((value:any,...pars:any[])=>any) 
 
 /**
  * @class
@@ -22,21 +25,28 @@ import {btoa} from '../utils';
  */
 export default class AsService {
 
+    private _source:any;
+    private _paramCount:number=0;
+    private _loader:any=undefined
+    private _mapper:TMapper
+    private _autoload:boolean
+    private _lastParams:any[];
+    private _subs:any = {};
     /**
      * @constructor
-     * @param {any} loader constant primitives | function | Promise | Observable
+     * @param {any} loader constant primitives | function | Promise | AObservable
      * @param {function} mapper  function convert returned data
      * @param {boolean} autoload if true automaticaly load promis or async data
      * @param {number} paramcount number of parameters (internal use)
      * @param {boolean} forceSourceLoad if true force to reload even when data is exist
      */
-    constructor(loader, mapper, autoload, paramcount, forceSourceLoad) {
+    constructor(loader:any, mapper:TMapper=(a:any)=>a, autoload:boolean=false, paramcount:number=0, forceSourceLoad:boolean=false) {
         if (!loader) {
             console.log("barte error:", "asService", "loader is not set");
             //return undefined;
         }
-
-        if (loader !== undefined && loader.$$isAsService) {
+        
+        if (loader !== undefined && loader._isAsService) {
             this._source = loader;
             this._paramCount = paramcount;
             this._forceSourceLoad = forceSourceLoad !== undefined;
@@ -58,11 +68,9 @@ export default class AsService {
             ? true
             : false;
 
-        this.$$isAsService = true;
     }
 
     _forceSourceLoad = false;
-    _paramCount = 0;
 
     /**
      * @description make derived service from source service with new other mapper function
@@ -79,16 +87,16 @@ export default class AsService {
      *
      * // or subscribe it
      *
-     * p2.Observable(3,2)
+     * p2.AObservable(3,2)
      * .subscribe(r=>{console.log("result: "+result)}) // result: 16
      *
-     * p2.Observable(5,2)
+     * p2.AObservable(5,2)
      * .subscribe(r=>{console.log("result: "+result)}) // nothing not loaded yet p2.load(5,2)
      *
      * ```
      *
      *      */
-    map(mapper, forceLoadSource) {
+    map(mapper:TMapper, forceLoadSource:boolean) {
 
         if (!mapper || typeof mapper !== "function") {
             console.log("AsService Error: mapper function not set")
@@ -108,7 +116,7 @@ export default class AsService {
                 .getMapper();
             if (sourceMapper) {
                 if (this._mapper) 
-                    return (...params) => this._mapper(sourceMapper(...params), ...params);
+                    return (...params:any[]) => this._mapper(sourceMapper(...params), ...params);
                 }
             else 
                 return this._mapper
@@ -130,77 +138,73 @@ export default class AsService {
             return this._loader;
         }
     
-    _subs = {};
-    _lastParams = [];
-    _sub = new Rx.BehaviorSubject();
-    _errorSub = new Rx.BehaviorSubject();
-    _stateSub = new Rx.BehaviorSubject();
+    
+    
+    _sub = new AObservable();
+    _errorSub = new AObservable();
+    _stateSub = new AObservable();
 
-    StateObservable(...params) {
+    StateObservable(...params:any[]) {
         const subFor=this.getSub(params);
 
         return subFor
             .stateSub
-            .filter(a => a !== undefined)
+           
             
     }
 
     get ObservableAll() {
         return this
             ._sub
-            .filter(a => a !== undefined);
     }
 
     get ErrorObservableAll() {
         return this
             ._errorSub
-            .filter(a => a !== undefined);
     }
 
-    ErrorObservable(...params) {
+    ErrorObservable(...params:any[]) {
 
         let subfor = this.getSub(...params)
         return subfor
             .errorSub
-            .filter(a => a !== undefined);
 
     }
 
     /**
      *
      * @param  {...any} params
-     * @requires rsjs observable
+     * @requires  AObservable
      */
-    Observable(...params) {
+    Observable(...params:any[]) {
         let subfor = this.getSub(...params);
 
         return subfor
             .sub
-            .filter(a => a !== undefined);
 
     }
 
-    refresh(...params) {
+    refresh(...params:any[]) {
         return this.forceLoad(...(params || this._lastParams));
     }
 
-    forceLoad(...params) {
+    forceLoad(...params:any[]) {
         this._lastParams = params;
         if (this._source) {
 
             return this
                 ._source
                 .load(...params)
-                .then(a => this._mapper
+                .then((a:any) => this._mapper
                     ? this._mapper(a, ...params)
                     : a)
-                .catch(e => e);
+                .catch((e:Error) => e);
 
         } else 
             return this._reload(...params);
         }
     
-    load(...params) {
+    load(...params:any[]) {
 
         var subfor = this.getSub(params);
         this._lastParams = params;
@@ -215,14 +219,14 @@ export default class AsService {
                 return this
                     ._source
                     .get(...params)
-                    .then(a => {
+                    .then((a:any) => {
                         subfor.sub.state = "idle";
                         subfor.stateSub.next("idle");
                         return this._mapper
                             ? this._mapper(a, ...params)
                             : a
                     })
-                    .catch(e => e);
+                    .catch((e:Error) => e);
             }
 
         } else {
@@ -231,7 +235,7 @@ export default class AsService {
         }
     }
 
-    get(...params) {
+    get(...params:any[]) {
         let subfor = this.getSub(...params);
 
         if (this._source) {
@@ -239,9 +243,9 @@ export default class AsService {
             return this
                 ._source
                 .get(...params)
-                .then(a => {
-                    if (this.mapper) 
-                        return this.mapper(a, ...params);
+                .then((a:any) => {
+                    if (this._mapper) 
+                        return this._mapper(a, ...params);
                     else 
                         return a;
                     }
@@ -255,13 +259,13 @@ export default class AsService {
                 let ret = new Promise((res, rej) => {
                     let subs = subfor
                         .sub
-                        .subscribe(a => {
+                        .subscribe((a:any) => {
                             res(a);
                             subs.unsubscribe();
                         });
                     let esubs = subfor
                         .errorSub
-                        .subscribe(e => {
+                        .subscribe((e:any) => {
                             rej(e);
                             esubs.unsubscribe();
                         });
@@ -283,7 +287,7 @@ export default class AsService {
      * @description calls all subscribers for just desired parameter combination
      * @param  {...any} params
      */
-    publish(...params) {
+    publish(...params:any[]) {
 
         let sub = this.getSub(...params);
         const v = sub
@@ -309,27 +313,27 @@ export default class AsService {
 
     }
 
-    getSub(...params) {
+    getSub(...params:any[]) {
 
-        const pars = params.slice(0, this._paramCount);
+        const pars:any = params.slice(0, this._paramCount);
         let tmp = btoa(encodeURIComponent(pars));
 
         if (!this._subs[tmp]) {
 
             this._subs[tmp] = {
                 sub: this._source === undefined
-                    ? new Rx.BehaviorSubject()
+                    ? new AObservable()
                     : this
                         ._source
-                        .Observable(...params)
-                        .map(a => this._mapper(a, ...pars)),
+                        .AObservable(...params)
+                        .map((a:any) => this._mapper(a, ...pars)),
                 errorSub: this._source === undefined
-                    ? new Rx.BehaviorSubject()
+                    ? new AObservable()
                     : this
                         ._source
                         .ErrorObservable(...params),
                 stateSub:this._source === undefined
-                ? new Rx.BehaviorSubject()
+                ? new AObservable()
                 : this
                     ._source
                     .StateObservable(...params),        
@@ -343,12 +347,12 @@ export default class AsService {
 
     }
 
-    getState(...params) {
+    getState(...params:any[]) {
         const sub = this.getSub(...params);
         return sub.state;
     }
 
-    _reload(...params) {
+    _reload(...params:any[]) {
 
         let subfor = this.getSub(...params);
         if (subfor.state === "loading") {
@@ -357,13 +361,13 @@ export default class AsService {
 
                 let subs = subfor
                     .sub
-                    .subscribe(a => {
+                    .subscribe((a:any) => {
                         res(a);
                         subs.unsubscribe();
                     });
                 let esubs = subfor
                     .errorSub
-                    .subscribe(e => {
+                    .subscribe((e:any) => {
                         rej(e);
                         esubs.unsubscribe();
                     });
@@ -385,7 +389,7 @@ export default class AsService {
             if (r._isScalar !== undefined) {
                 if (subfor.sourceObservable !== undefined) 
                     subfor.sourceObservable.unsubscribe();
-                subfor.sourceObservable = r.subscribe(b => {
+                subfor.sourceObservable = r.subscribe((b:any) => {
                     let ret2 = this._mapper
                         ? this._mapper(b, ...params)
                         : b;
@@ -404,7 +408,7 @@ export default class AsService {
             } else if (r instanceof Promise) {
 
                 console.log(4555);
-                fnret.then(d => {
+                fnret.then((d:any) => {
 
                     subfor.state = "idle";
                     subfor.stateSub.next("idle");
@@ -412,7 +416,6 @@ export default class AsService {
                         ? this._mapper(d, ...params)
                         : d;
 
-                    this.$data = ret2;
 
                     res(ret2);
 
@@ -424,7 +427,7 @@ export default class AsService {
                         ._sub
                         .next(ret2);
                     return ret;
-                }).catch(e => {
+                }).catch((e:any) => {
                     
                     console.log(4558);
                     subfor.state = "start";

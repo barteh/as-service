@@ -1,4 +1,4 @@
-export function hashcode(inobjin) {
+export function hashcode(inobjin : any) {
 				let inobj = JSON.stringify(inobjin);
 				//console.log(88888,inobj) return;
 				var hash = 0;
@@ -17,7 +17,7 @@ export function hashcode(inobjin) {
 				return hash.toString();
 }
 
-export function objectToFormData(obj) {
+export function objectToFormData(obj : any) {
 				let str = "";
 				for (let k in obj) {
 								str += k + "=" + obj[k] + "&";
@@ -29,7 +29,11 @@ export function objectToFormData(obj) {
 export const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
 
 export const isNode = new Function("try {return this===global;}catch(e){return false;}");
+//declare type window=never;
+declare type btoa=never;
 
-export const btoa = btoa || function (str) {
-				return new Buffer(str).toString('base64');
-};
+export const btoa : any =isBrowser()
+				? window.btoa
+				: (str : string) => Buffer
+								.from(str)
+								.toString('base64');

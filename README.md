@@ -2,12 +2,15 @@
 
 # AsService
 
+## Use any data as a service
+
+### A super simple and easy to use reactive library for subscribing to any data. contains a hook for react js.
 ---
-## A chained, cascade, parametric, observable and promise base data service. based on rxjs, using axios as default connector http server (XHR) and localforge for cache in indexedDB.
+
+### What does it exactly do?
+> It helps programmers (both back and front end) to avoid complexity of traditional state management systems such as React Redux and reactive programming pattern library like Rxjs. It is lightweight and easy to use library contains one core function and a hook for react. By using it we can subscribe vast the majority of data type such as primitive, complex, promises and function as a service and receive all changes by particular parameter (parametric subscription). We do not even need to control the subscribe-unsubscribe process in react with simple hook it do all the process automatically.
 
 
-### why use AsService?
-> Rxjs is greate and nice library implements event driven pattern but there are some little vacancy. thus using Rxjs directly for web application for data flow is not easy. you shuld create and manage observables on fly. no parametric observables. no pure reusable way to loading data from source like http and ... .  According to our experiance we crated current library that provides every thing as a parametric observable  service coveres wide range of  needs easily. so we created other tool named withservice base on this for using easily rxjs in react. [@barteh/react-withservice](https://github.com/barteh/react-withservice) .
 
 
 ### Install

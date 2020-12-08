@@ -1,30 +1,25 @@
 {
   "name": "@barteh/as-service",
-  "version": "1.0.65",
+  "version": "2.0.0",
   "description": "observable data service based on rxjs using axios for conunicate with server via http (XHR). ",
   "main": "index.js",
   "scripts": {
     "test": " npm run build && node ./lib/test",
     "server-test": " npm run build && node ./lib/Server/server.test.js",
-    "build": "npm run lint && babel src -d ./lib ",
+    "build": "tsc && tsc index.ts",
     "up": "npm publish --access public --scope=barteh",
     "lint": "eslint src/**/*.js && echo \"eslint code is ok\""
   },
   "devDependencies": {
-    "@babel/cli": "^7.6.4",
-    "@babel/core": "^7.6.4",
-    "@babel/plugin-proposal-class-properties": "^7.5.5",
-    "@babel/preset-env": "^7.6.3",
-    "@babel/preset-react": "^7.6.3",
-    "babel-eslint": "^8.2.6",
-    "eslint": "^5.16.0",
-    "eslint-plugin-react": "^7.16.0"
+    "typescript": "^4.1.2"
   },
   "dependencies": {
-    "axios": "^0.19.0",
-    "core-js": "^2.6.10",
+    "@types/node": "^14.14.10",
+    "@types/react": "^17.0.0",
+    "axios": "^0.19.2",
     "localforage": "^1.7.3",
-    "rxjs": "^5.5.12"
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1"
   },
   "repository": {
     "type": "git",
