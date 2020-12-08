@@ -1,7 +1,7 @@
 {
   "name": "@barteh/as-service",
   "version": "2.0.0",
-  "description": "observable data service based on rxjs using axios for conunicate with server via http (XHR). ",
+  "description": "A super simple and easy to use reactive library for subscribing to any data. contains a hook for react js.",
   "main": "index.js",
   "scripts": {
     "test": " npm run build && node ./lib/test",
@@ -28,8 +28,9 @@
   "keywords": [
     "service",
     "injectable-service",
-    "rx-in-react",
-    "axios"
+    "reactive-state-management-react",
+    "react-js",
+    "barteh"
   ],
   "author": "Ahad Rafat Talebi",
   "license": "MIT",
