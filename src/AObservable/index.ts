@@ -61,7 +61,9 @@ export class AObservable {
         }
 
     }
-
+    getValue(){
+        return this._value;
+    }
     next(newValue : any) {
         if (newValue !== undefined) {
             this._value = newValue;
