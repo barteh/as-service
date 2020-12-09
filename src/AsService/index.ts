@@ -11,7 +11,7 @@
  * Trademark barteh
  */
 
-import { AObservable } from "../AObservable";
+import { AObservable, ASubscriber } from "../AObservable";
 
 import { btoa } from "../utils";
 
@@ -22,7 +22,7 @@ interface ISub {
   state: "start" | "idle" | "loading";
   stateSub: AObservable;
   errorSub: AObservable;
-  sourceObservable?:AObservable;
+  sourceObservable?:ASubscriber;
 }
 /**
  * @class
@@ -334,7 +334,7 @@ export default class AsService {
           subfor.sub.next(ret2);
 
           this._sub.next(ret2);
-          subfor.sourceObservable.unsubscribe();
+          subfor.sourceObservable!.unsubscribe();
         });
       } else if (r instanceof Promise) {
         console.log(4555);
@@ -374,6 +374,21 @@ export default class AsService {
       }
     });
 
+ 
+
     return ret;
+  }
+
+  subscribe(func:(a:any)=>any,...params:any[]){
+    if(!func){
+      throw "as-service error: should pass function into subscribe() method "
+    }
+    if(!params){
+      return this._sub.subscribe(func);
+    }
+    else{
+      return this.getSub(...params).sub.subscribe(func);
+    }
+
   }
 }
