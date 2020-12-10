@@ -28,12 +28,25 @@ export class ASubscriber {
             .removeSubscriber(this);
     }
 }
+
+
+
+
 export class AObservable {
     _value = undefined;
     _subscribers : Array < ASubscriber > = [];
-
-    constructor(initialValue : any=undefined) {
+    _source?:AObservable;
+    constructor(initialValue : any=undefined,source?:AObservable,map?:(p:any)=>any) {
         this._value = initialValue;
+        this._source= source ;
+       
+        if(this._source){
+            const mapper:(p:any)=>any=map || ( (p:any)=>p);
+            this._source.subscribe((v:any)=>{
+
+                this.next(mapper(v));
+            })
+        }
     }
 
     subscribe(func : TSubscribeCallback) {
@@ -64,6 +77,12 @@ export class AObservable {
     getValue(){
         return this._value;
     }
+
+    map(func:(p:any)=>any):AObservable{
+        const ret=new AObservable(this._value,this,func);
+        return ret;
+    }
+
     next(newValue : any) {
         if (newValue !== undefined) {
             this._value = newValue;

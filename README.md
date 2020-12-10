@@ -22,11 +22,13 @@ npm i @barteh/as-service --save
 
 ### Usage
 
+
 #### Import library
 
 ```js
 import { AsService, Server } from "@barteh/as-service";
 ```
+
 
 #### one: Primitive type (number | string | Array) as service
 

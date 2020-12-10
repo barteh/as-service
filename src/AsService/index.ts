@@ -10,19 +10,18 @@
  * Copyright 2018 - 2021 Borna Mehr Fann, Borna Mehr Fann
  * Trademark barteh
  */
-
 import { AObservable, ASubscriber } from "../AObservable";
 
 import { btoa } from "../utils";
 
-declare type TMapper = (value: any, ...pars: any[]) => any;
+declare type TMapper = (...params: any[]) => any;
 
 interface ISub {
   sub: AObservable;
   state: "start" | "idle" | "loading";
   stateSub: AObservable;
   errorSub: AObservable;
-  sourceObservable?:ASubscriber;
+  sourceObservable?: ASubscriber;
 }
 /**
  * @class
@@ -54,11 +53,10 @@ export default class AsService {
     forceSourceLoad: boolean = false
   ) {
     if (!loader) {
-      console.log("barte error:", "asService", "loader is not set");
-      //return undefined;
+      throw "barte error: asService loader is not set";
     }
 
-    if (loader !== undefined && loader._isAsService) {
+    if ( loader instanceof(AsService)) {
       this._source = loader;
       this._paramCount = paramcount;
       this._forceSourceLoad = forceSourceLoad !== undefined;
@@ -103,10 +101,9 @@ export default class AsService {
    * ```
    *
    *      */
-  map(mapper: TMapper, forceLoadSource: boolean): any {
+  map(mapper: TMapper, forceLoadSource: boolean = false): AsService {
     if (!mapper || typeof mapper !== "function") {
-      console.log("AsService Error: mapper function not set");
-      return undefined;
+      return this;
     } else
       return new AsService(
         this,
@@ -193,8 +190,14 @@ export default class AsService {
 
   load(...params: any[]): Promise<any> {
     var subfor = this.getSub(params);
+
     this._lastParams = params;
+   
     if (this._source) {
+      
+
+      console.log(params)
+
       if (this._forceSourceLoad) {
         return this.forceLoad(...params);
       } else {
@@ -214,7 +217,7 @@ export default class AsService {
     }
   }
 
-  get(...params: any[]) {
+  get(...params: any[]): any {
     let subfor = this.getSub(...params);
 
     if (this._source) {
@@ -270,9 +273,12 @@ export default class AsService {
     this._sub.next(nv);
   }
 
-  getSub(...params: any[]): ISub {
+  getSub(...params: any[]): ISub {   
+
     const pars: any = params.slice(0, this._paramCount);
+
     let tmp = btoa(encodeURIComponent(pars));
+   
 
     if (!this._subs[tmp]) {
       this._subs[tmp] = {
@@ -280,7 +286,7 @@ export default class AsService {
           this._source === undefined
             ? new AObservable()
             : this._source
-                .AObservable(...params)
+                .Observable(...params)
                 .map((a: any) => this._mapper(a, ...pars)),
         errorSub:
           this._source === undefined
@@ -293,6 +299,7 @@ export default class AsService {
         state: this._source === undefined ? "start" : "idle",
       };
     }
+
     return this._subs[tmp];
   }
 
@@ -325,8 +332,10 @@ export default class AsService {
       let fnret = this._loader(...params);
 
       const r = fnret;
+      console.log(2222,r)
 
-      if (r._isScalar !== undefined) {
+      if (r instanceof(AsService)) {
+        console.log(3333,subfor.sourceObservable)
         if (subfor.sourceObservable !== undefined)
           subfor.sourceObservable.unsubscribe();
         subfor.sourceObservable = r.subscribe((b: any) => {
@@ -334,10 +343,11 @@ export default class AsService {
           subfor.sub.next(ret2);
 
           this._sub.next(ret2);
+          
           subfor.sourceObservable!.unsubscribe();
         });
       } else if (r instanceof Promise) {
-        console.log(4555);
+
         fnret
           .then((d: any) => {
             subfor.state = "idle";
@@ -362,6 +372,7 @@ export default class AsService {
             this._errorSub.next(e);
           });
       } else {
+
         let ret = this._mapper ? this._mapper(r, ...params) : r;
 
         res(ret);
@@ -374,21 +385,17 @@ export default class AsService {
       }
     });
 
- 
-
     return ret;
   }
 
-  subscribe(func:(a:any)=>any,...params:any[]){
-    if(!func){
-      throw "as-service error: should pass function into subscribe() method "
+  subscribe(func: (a: any) => any, ...params: any[]) {
+    if (!func) {
+      throw "as-service error: should pass function into subscribe() method ";
     }
-    if(!params){
+    if (params.length < 1) {
       return this._sub.subscribe(func);
-    }
-    else{
+    } else {
       return this.getSub(...params).sub.subscribe(func);
     }
-
   }
 }
