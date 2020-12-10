@@ -33,7 +33,8 @@ export class ASubscriber {
 
 
 export class AObservable {
-    _value = undefined;
+    _value:any = undefined;
+    _acc:any=undefined
     _subscribers : Array < ASubscriber > = [];
     _source?:AObservable;
     constructor(initialValue : any=undefined,source?:AObservable,map?:(p:any)=>any) {
@@ -73,6 +74,9 @@ export class AObservable {
                 .splice(idx, 1);
         }
 
+    }
+    reduce(func:(acc:any,param:any)=>any){
+        
     }
     getValue(){
         return this._value;

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": " tsc -w && node lib/test/test.js",
-    "test:derive":" nodemon lib/test/test-derive.js",
+    "test:derive": " nodemon lib/test/test-derive.js",
     "server:test": " npm run build && node ./lib/Server/server.test-derive.js",
     "build": "tsc -w && tsc index.ts",
     "up": "npm publish --access public --scope=barteh",
