@@ -75,9 +75,9 @@ export class AObservable {
         }
 
     }
-    reduce(func:(acc:any,param:any)=>any){
-        
-    }
+    // reduce(func:(acc:any,param:any)=>any):AObservable{
+    //     return new
+    // }
     getValue(){
         return this._value;
     }

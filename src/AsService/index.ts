@@ -56,7 +56,9 @@ export default class AsService {
       throw "barte error: asService loader is not set";
     }
 
+    
     if ( loader instanceof(AsService)) {
+      console.log(111,loader)
       this._source = loader;
       this._paramCount = paramcount;
       this._forceSourceLoad = forceSourceLoad !== undefined;
@@ -278,9 +280,11 @@ export default class AsService {
     const pars: any = params.slice(0, this._paramCount);
 
     let tmp = btoa(encodeURIComponent(pars));
-   
+
+    console.log(2222,params,this._source)
 
     if (!this._subs[tmp]) {
+
       this._subs[tmp] = {
         sub:
           this._source === undefined
@@ -332,9 +336,8 @@ export default class AsService {
       let fnret = this._loader(...params);
 
       const r = fnret;
-      console.log(2222,r)
 
-      if (r instanceof(AsService)) {
+      if (r instanceof(AObservable)) {
         console.log(3333,subfor.sourceObservable)
         if (subfor.sourceObservable !== undefined)
           subfor.sourceObservable.unsubscribe();
