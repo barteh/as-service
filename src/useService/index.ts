@@ -31,8 +31,7 @@
 
  import {useState, useEffect} from 'react';
  import AsService from '../AsService';
- import {ASubscriber} from '../AObservable';
-
+import {Subscription} from 'rxjs'
 
  export type  TServiceStatus="loading" | "ready" | "error";
 
@@ -83,8 +82,8 @@
          setRet] = useState(new AUseServiceReturnType("loading"));
      useEffect( () => {
  
-         let sub:ASubscriber,
-             errorsub:ASubscriber;
+         let sub:Subscription ,
+             errorsub:Subscription ;
  
          function handleChangeDone(data:any) {
              setRet(new AUseServiceReturnType("ready", data,undefined,retry));
@@ -92,7 +91,7 @@
          function handleChangeError(error:number) {
              setRet(new AUseServiceReturnType("error", undefined, error, retry));
          }
-         sub = service
+          sub = service
              .Observable(...params)
              .subscribe(handleChangeDone);
          errorsub = service

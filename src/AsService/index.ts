@@ -10,18 +10,19 @@
  * Copyright 2018 - 2021 Borna Mehr Fann, Borna Mehr Fann
  * Trademark barteh
  */
-import { AObservable, ASubscriber } from "../AObservable";
-
+// import {  ASubscriber } from "../as ";
+import { BehaviorSubject, Subscription } from 'rxjs';
+import {map} from 'rxjs/operators'
 import { btoa } from "../utils";
 
 declare type TMapper = (...params: any[]) => any;
 
 interface ISub {
-  sub: AObservable;
+  sub: BehaviorSubject<any> ;
   state: "start" | "idle" | "loading";
-  stateSub: AObservable;
-  errorSub: AObservable;
-  sourceObservable?: ASubscriber;
+  stateSub: BehaviorSubject <any>;
+  errorSub: BehaviorSubject<any> ;
+  sourceObservable?: Subscription;
 }
 /**
  * @class
@@ -29,17 +30,17 @@ interface ISub {
  * @name AsService
  */
 export default class AsService {
-  private _source: any;
-  private _paramCount: number = 0;
-  private _loader: any = undefined;
-  private _mapper: TMapper;
-  private _autoload: boolean;
-  private _lastParams: any[];
-  private _subs: { [hash: string]: ISub } = {};
+  public  _source: AsService;
+  public  _paramCount: number = 0;
+  public  _loader: any = undefined;
+  public  _mapper: TMapper;
+  public  _autoload: boolean;
+  public  _lastParams: any[];
+  public  _subs: { [hash: string]: ISub } = {};
 
   /**
    * @constructor
-   * @param {any} loader constant primitives | function | Promise | AObservable
+   * @param {any} loader constant primitives | function | Promise | BehaviorSubject 
    * @param {function} mapper  function convert returned data
    * @param {boolean} autoload if true automaticaly load promis or async data
    * @param {number} paramcount number of parameters (internal use)
@@ -58,7 +59,6 @@ export default class AsService {
 
     
     if ( loader instanceof(AsService)) {
-      console.log(111,loader)
       this._source = loader;
       this._paramCount = paramcount;
       this._forceSourceLoad = forceSourceLoad !== undefined;
@@ -94,10 +94,10 @@ export default class AsService {
    *
    * // or subscribe it
    *
-   * p2.AObservable(3,2)
+   * p2.BehaviorSubject (3,2)
    * .subscribe(r=>{console.log("result: "+result)}) // result: 16
    *
-   * p2.AObservable(5,2)
+   * p2.BehaviorSubject (5,2)
    * .subscribe(r=>{console.log("result: "+result)}) // nothing not loaded yet p2.load(5,2)
    *
    * ```
@@ -142,9 +142,9 @@ export default class AsService {
     } else return this._loader;
   }
 
-  _sub = new AObservable();
-  _errorSub = new AObservable();
-  _stateSub = new AObservable();
+  _sub = new BehaviorSubject (undefined);
+  _errorSub = new BehaviorSubject (undefined);
+  _stateSub = new BehaviorSubject (undefined);
 
   StateObservable(...params: any[]) {
     const subFor = this.getSub(params);
@@ -152,15 +152,15 @@ export default class AsService {
     return subFor.stateSub;
   }
 
-  get ObservableAll(): AObservable {
+  get ObservableAll(): BehaviorSubject <any> {
     return this._sub;
   }
 
-  get ErrorObservableAll(): AObservable {
+  get ErrorObservableAll(): BehaviorSubject <any> {
     return this._errorSub;
   }
 
-  ErrorObservable(...params: any[]): AObservable {
+  ErrorObservable(...params: any[]): BehaviorSubject<any>  {
     let subfor = this.getSub(...params);
     return subfor.errorSub;
   }
@@ -168,9 +168,9 @@ export default class AsService {
   /**
    *
    * @param  {...any} params
-   * @requires  AObservable
+   * @requires  BehaviorSubject 
    */
-  Observable(...params: any[]): AObservable {
+  Observable(...params: any[]): BehaviorSubject<any>  {
     let subfor = this.getSub(...params);
 
     return subfor.sub;
@@ -191,14 +191,13 @@ export default class AsService {
   }
 
   load(...params: any[]): Promise<any> {
-    var subfor = this.getSub(params);
+    var subfor = this.getSub(...params);
 
     this._lastParams = params;
    
     if (this._source) {
       
 
-      console.log(params)
 
       if (this._forceSourceLoad) {
         return this.forceLoad(...params);
@@ -281,24 +280,24 @@ export default class AsService {
 
     let tmp = btoa(encodeURIComponent(pars));
 
-    console.log(2222,params,this._source)
 
     if (!this._subs[tmp]) {
 
       this._subs[tmp] = {
         sub:
           this._source === undefined
-            ? new AObservable()
+            ? new BehaviorSubject (undefined)
             : this._source
-                .Observable(...params)
-                .map((a: any) => this._mapper(a, ...pars)),
+            .Observable(...params).pipe( map((a: any) => this._mapper(a, ...pars))),
+                // .Observable(...params)),
+                // .map((a: any) => this._mapper(a, ...pars)),
         errorSub:
           this._source === undefined
-            ? new AObservable()
+            ? new BehaviorSubject (undefined)
             : this._source.ErrorObservable(...params),
         stateSub:
           this._source === undefined
-            ? new AObservable()
+            ? new BehaviorSubject (undefined)
             : this._source.StateObservable(...params),
         state: this._source === undefined ? "start" : "idle",
       };
@@ -312,7 +311,8 @@ export default class AsService {
     return sub.state;
   }
 
-  _reload(...params: any[]) {
+  _reload(...params: any[]) {console.log(55)
+
     let subfor = this.getSub(...params);
     if (subfor.state === "loading") {
       let ret = new Promise((res, rej) => {
@@ -336,9 +336,7 @@ export default class AsService {
       let fnret = this._loader(...params);
 
       const r = fnret;
-
-      if (r instanceof(AObservable)) {
-        console.log(3333,subfor.sourceObservable)
+      if (r instanceof(BehaviorSubject )) {
         if (subfor.sourceObservable !== undefined)
           subfor.sourceObservable.unsubscribe();
         subfor.sourceObservable = r.subscribe((b: any) => {
@@ -365,7 +363,6 @@ export default class AsService {
             return ret;
           })
           .catch((e: any) => {
-            console.log(4558);
             subfor.state = "start";
             subfor.stateSub.next("start");
 
@@ -380,7 +377,6 @@ export default class AsService {
 
         res(ret);
         subfor.sub.next(ret);
-
         this._sub.next(ret);
 
         subfor.state = "idle";
@@ -392,10 +388,12 @@ export default class AsService {
   }
 
   subscribe(func: (a: any) => any, ...params: any[]) {
+
     if (!func) {
       throw "as-service error: should pass function into subscribe() method ";
     }
     if (params.length < 1) {
+      console.log(1919)
       return this._sub.subscribe(func);
     } else {
       return this.getSub(...params).sub.subscribe(func);
