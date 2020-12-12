@@ -12,7 +12,7 @@
  */
 
 
-declare type TSubscribeCallback = (value : any) => any;
+declare type TSubscribeCallback = (value : any) => void;
 
 export class ASubscriber {
     readonly _func : TSubscribeCallback;
@@ -95,6 +95,7 @@ export class AObservable {
                 ._subscribers
                 .forEach(function (sub) {
                     try {
+                        
                         sub._func(self._value);
                     } catch (error) {
                         console.log("error:", error);
