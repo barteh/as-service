@@ -1,12 +1,20 @@
 import AsService from "../AsService";
-import { loadavg } from "os";
 
 
-const srv=new AsService(a=>a);
+const srv=new AsService(a=>2*a);
+const s2=srv.map()
 srv.subscribe((d:any)=>{
-    console.log("subscriber",d,d[0],d[1]);
-},5);
-srv.load(5)
+    console.log("subscriber",d);
+},2);
+  srv.load(2)
+//   .then(a=>{
+     
+//     console.log(1212,x)})
+     .catch(h=>console.log(333,h))
+    // .then(w=>console.log(w))
+
+
+
 // console.log(srv);
 
 // import AsService from "../AsService";
