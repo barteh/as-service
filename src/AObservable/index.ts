@@ -36,8 +36,9 @@ export class AObservable {
 
   constructor(
     initialValue: any = undefined,
-    source?: AObservable,
-    map?: TObserverMapper
+    map?: TObserverMapper,
+    source?: AObservable
+  
   ) {
 
     this._value = initialValue;
@@ -80,7 +81,7 @@ export class AObservable {
   }
 
   map(func: (p: any) => any): AObservable {
-    const ret = new AObservable(this._value, this, func);
+    const ret = new AObservable(this._value,  func,this);
     return ret;
   }
 

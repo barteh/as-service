@@ -30,10 +30,20 @@ export const isBrowser = new Function("try {return this===window;}catch(e){ retu
 
 export const isNode = new Function("try {return this===global;}catch(e){return false;}");
 //declare type window=never;
-declare type btoa=never;
+declare type btoa = never;
 
-export const btoa : any =isBrowser()
+export const btoa : any = isBrowser()
 				? window.btoa
 				: (str : string) => Buffer
 								.from(str)
 								.toString('base64');
+export const allPossible = (params : any[]) : any[][] => {
+	console.log(17,params);
+				const ret:any[][]=[];
+				for (let i = 0; i < params.length; i++) {
+					ret.push(params.slice(0,i+1))
+					
+				}
+				return ret;
+				
+}
