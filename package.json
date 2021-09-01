@@ -21,7 +21,7 @@
     "@types/node": "^14.14.10",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "localforage": "^1.7.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
